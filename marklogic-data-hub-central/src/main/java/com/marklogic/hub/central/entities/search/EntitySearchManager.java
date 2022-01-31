@@ -33,6 +33,7 @@ import com.marklogic.client.query.StructuredQueryDefinition;
 import com.marklogic.hub.HubClient;
 import com.marklogic.hub.central.entities.search.impl.CollectionFacetHandler;
 import com.marklogic.hub.central.entities.search.impl.CreatedOnFacetHandler;
+import com.marklogic.hub.central.entities.search.impl.CustomTriplesHandler;
 import com.marklogic.hub.central.entities.search.impl.EntityPropertyFacetHandler;
 import com.marklogic.hub.central.entities.search.impl.JobRangeFacetHandler;
 import com.marklogic.hub.central.entities.search.models.DocSearchQueryInfo;
@@ -170,6 +171,18 @@ public class EntitySearchManager {
                 queries.add(facetDef);
             }
         });
+
+        //Filter by Related document
+        if (searchQuery.getQuery().getRelatedDocument() != null) {
+            //option 1
+            /*StructuredQueryDefinition relatedDef =
+                queryBuilder.and(queryBuilder.term("neighborhood"),
+                    queryBuilder.valueConstraint("triples", "Real Estate"));*/
+
+            //option2
+            StructuredQueryDefinition relatedDef = new CustomTriplesHandler().buildQuery(searchQuery.getQuery().getRelatedDocument(), queryBuilder);
+            queries.add(relatedDef);
+        }
 
         // And between all the queries
         return queryBuilder.and(queries.toArray(new StructuredQueryDefinition[0]));
