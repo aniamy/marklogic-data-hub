@@ -11,6 +11,7 @@ import tooltipsConfig from "../../../config/explorer-tooltips.config";
 import {updateUserPreferences, getUserPreferences} from "../../../services/user-preferences";
 import {UserContext} from "../../../util/user-context";
 import {expandGroupNode} from "../../../api/queries";
+import {Link} from "react-router-dom";
 
 
 type Props = {
@@ -66,7 +67,7 @@ const GraphVisExplore: React.FC<Props> = (props) => {
     network.body.data.nodes.update(nodes);
   };
   const updateEdgesData = (edges) => {
-    network.body.data.edges.update(getEdges());
+    network.body.data.edges.update(edges);
   };
 
   const clearGraphData = () => {
@@ -158,6 +159,20 @@ const GraphVisExplore: React.FC<Props> = (props) => {
           groupNodeId: clickedNode["nodeId"],
           parentIRI: "http://marklogic/dummyIRI",
           predicateFilter: "dummyPredicateFilter"
+        }
+      };
+      updateUserPreferences(user.name, preferencesObject);
+    }
+  };
+
+  const setUserPreferencesForTableView = (relatedPayload) => {
+    let defaultPreferences = getUserPreferences(user.name);
+    if (defaultPreferences !== null) {
+      let parsedPreferences = JSON.parse(defaultPreferences);
+      let preferencesObject = {
+        ...parsedPreferences,
+        graphViewOptions: {
+          relatedView: relatedPayload
         }
       };
       updateUserPreferences(user.name, preferencesObject);
@@ -415,8 +430,35 @@ const GraphVisExplore: React.FC<Props> = (props) => {
     graphDataTemp.nodes = getNodes(nodes);
     graphDataTemp.edges = getEdges(edges);
     network.body.data.nodes.remove(graphDataTemp.nodes);
-    network.body.data.nodes.update(graphDataTemp.nodes);
-    network.body.data.edges.update(graphDataTemp.edges);
+    updateNodesData(graphDataTemp.nodes);
+    updateEdgesData(graphDataTemp.edges);
+  };
+
+  const isRelatedViewFromGraph = () => {
+    let defaultPreferences = getUserPreferences(user.name);
+    if (defaultPreferences !== null) {
+      let parsedPreferences = JSON.parse(defaultPreferences);
+      if (parsedPreferences && parsedPreferences.hasOwnProperty("graphViewOptions")
+        && parsedPreferences.graphViewOptions.hasOwnProperty("relatedView")) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const handleTableViewRecords = () => {
+    if (network) {
+      const selectedNodeType = clickedNode && clickedNode["nodeId"] ? clickedNode["nodeId"].split("/").pop().split("-").pop() : undefined;
+      const predicate = clickedNode && clickedNode["predicateIRI"];
+      const parentNode = clickedNode && clickedNode["parentNode"];
+      const relatedView = {
+        entityTypeId: selectedNodeType,
+        predicateFilter: predicate,
+        parentNode: parentNode
+      };
+
+      setUserPreferencesForTableView(relatedView);
+    }
   };
 
   const handleGroupNodeExpand = async (payloadData) => {
@@ -471,20 +513,17 @@ const GraphVisExplore: React.FC<Props> = (props) => {
       network.body.data.nodes.remove(graphNodesDataTemp);
       network.body.data.edges.remove(graphEdgesDataTemp);
       let removedNode = getNodes([groupNodes[removedNodeIRI]]);
-      network.body.data.nodes.update(removedNode);
+      updateNodesData(removedNode);
     } catch (error) {
       handleError(error);
     }
   };
 
-
   const handleMenuClick = async (event) => {
     setContextMenuVisible(false);
     let id = event.target.id;
     if (id === "viewRecordsInTableView") {
-      if (network) {
-        setUserPreferences();
-      }
+      handleTableViewRecords();
     } else if (id === "expand3SampleRecords") {
       if (network) {
         let payloadData = {expandAll: false};
@@ -543,29 +582,25 @@ const GraphVisExplore: React.FC<Props> = (props) => {
     return (
       <div id="contextMenu" className={styles.contextMenu} style={{left: menuPosition.x, top: menuPosition.y}}
         onClick={handleMenuClick}>
-        {/* {nodeIdExists() &&
-          <div id="viewRecordsInTableView" key="1" className={styles.contextMenuItem} >
-            <Link to={
-              {
-                pathname: "/tiles/explore",
-              }
-            } target="_blank" className={styles.viewRecordsInTableLink} >
-              View all related {entityType} records in a table
-            </Link>
+        { nodeIdExists() && isGroupNode() &&
+        <Link to="/tiles/explore" target="_blank">
+          <div id="viewRecordsInTableView" key="1" className={styles.contextMenuItem} onClick={() => handleMenuClick}>
+            View all related {entityType} records in a table
           </div>
-        } */}
+        </Link>
+        }
         {nodeIdExists() && isGroupNode() && !isExpandedChildNode() &&
-          <div id="expand3SampleRecords" key="2" className={styles.contextMenuItem} onClick={handleMenuClick}>
+          <div id="expand3SampleRecords" key="2" className={styles.contextMenuItem} onClick={() => handleMenuClick}>
             Expand 3 {entityType} records from this group
           </div>
         }
         {nodeIdExists() && isGroupNode() &&
-          <div id="expandAllRecords" key="3" className={styles.contextMenuItem} onClick={handleMenuClick}>
+          <div id="expandAllRecords" key="3" className={styles.contextMenuItem} onClick={() => handleMenuClick}>
             Expand all {entityType} records in this group
           </div>
         }
         {nodeIdExists() && isExpandedChildNode() &&
-          <div id="collapseRecords" key="4" className={styles.contextMenuItem} onClick={handleMenuClick}>
+          <div id="collapseRecords" key="4" className={styles.contextMenuItem} onClick={() => handleMenuClick}>
             Collapse all {entityType} records into a group
           </div>
         }
@@ -602,6 +637,7 @@ const GraphVisExplore: React.FC<Props> = (props) => {
           nodeInfo: nodeInfo
         };
         handleGroupNodeExpand(payloadData);
+        setUserPreferences();
       } else {
         setSavedNode(nodeObject);
         setGraphViewOptions(node);
@@ -651,6 +687,7 @@ const GraphVisExplore: React.FC<Props> = (props) => {
           nodeInfo: nodeInfo
         };
         handleGroupNodeExpand(payloadData);
+        setUserPreferences();
       }
     }
   };

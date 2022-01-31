@@ -54,6 +54,7 @@ const Browse: React.FC<Props> = ({location}) => {
     setEntityDefinitionsArray,
     clearAllGreyFacets,
     setEntityTypeIds,
+    setEntitiesAndRelatedData
   } = useContext(SearchContext);
   const searchBarRef = useRef<HTMLDivElement>(null);
   const authorityService = useContext(AuthoritiesContext);
@@ -65,7 +66,9 @@ const Browse: React.FC<Props> = ({location}) => {
   const [facets, setFacets] = useState<any>();
   const [isLoading, setIsLoading] = useState(true);
   const [totalDocuments, setTotalDocuments] = useState(0);
-  const [tableView, toggleTableView] = useState(JSON.parse(getUserPreferences(user.name)).tableView);
+  const [viewOptions, setViewOptions] = useState({
+    graphView: true,
+    tableView: false});
   const [endScroll, setEndScroll] = useState(false);
   const [selectedFacets, setSelectedFacets] = useState<any[]>([]);
   const [greyFacets, setGreyFacets] = useState<any[]>([]);
@@ -86,13 +89,13 @@ const Browse: React.FC<Props> = ({location}) => {
   const [facetsSpecificPanel, setFacetsEntitySpecificPanel] = useState<any>(undefined);
   const [showMainSidebar, setShowMainSidebar] = useState<boolean>(true);
   const [showEntitySpecificPanel, setShowEntitySpecificPanel] = useState<boolean>(false);
-  const [graphView, setGraphView] = useState(state && state.graphView ? true : JSON.parse(getUserPreferences(user.name)).graphView);
   const [applyClicked, toggleApplyClicked] = useState(false);
   const [showApply, toggleApply] = useState(false);
   const [updateSpecificFacets, setUpdateSpecificFacets] = useState<boolean>(false);
   const [isAllEntitiesSelected, setIsAllEntitiesSelected] = useState(true);
   const [parsedFacets, setParsedFacets] = React.useState<any[]>([]);
 
+  const {tableView, graphView} = viewOptions;
 
   const isGraphView = () => {
     const isGraph = searchOptions.nextEntityType !== "All Data" && graphView;
@@ -178,10 +181,12 @@ const Browse: React.FC<Props> = ({location}) => {
     }
   };
 
-  const getSearchResults = async (allEntities: string[]) => {
+  const getSearchResults = async (allEntities: string[], relatedTableData: any) => {
     let searchText = searchOptions.query;
     try {
-      handleUserPreferences();
+      if (!relatedTableData) {
+        handleUserPreferences();
+      }
       setIsLoading(true);
       const response = await axios({
         method: "POST",
@@ -191,7 +196,11 @@ const Browse: React.FC<Props> = ({location}) => {
             searchText,
             entityTypeIds: searchOptions.nextEntityType === "All Data" ? [] : allEntities,
             selectedFacets: searchOptions.selectedFacets,
-            hideHubArtifacts: searchOptions.nextEntityType === "All Data" ? hideDataHubArtifacts : true
+            hideHubArtifacts: searchOptions.nextEntityType === "All Data" ? hideDataHubArtifacts : true,
+            relatedDocument: !relatedTableData ? null : {
+              docIRI: relatedTableData.parentNode,
+              predicate: relatedTableData.predicateFilter
+            }
           },
           propertiesToDisplay: searchOptions.nextEntityType === "All Data" ? [] : searchOptions.selectedTableProperties,
           start: searchOptions.start,
@@ -207,7 +216,7 @@ const Browse: React.FC<Props> = ({location}) => {
       if (componentIsMounted.current && response.data) {
         if (response.data.entityPropertyDefinitions && graphView) {
           setData(response.data.results);
-        } else if (!isGraphView()) {
+        } else if (!graphView) {
           setData(response.data.results);
         }
         if (response.data.hasOwnProperty("entityPropertyDefinitions")) {
@@ -265,7 +274,7 @@ const Browse: React.FC<Props> = ({location}) => {
         selectingAllDataOption ||
         selectingEntityType
       )) {
-      getSearchResults(searchOptions.entityTypeIds);
+      getSearchResults(searchOptions.entityTypeIds, searchOptions.relatedToData);
     } else {
       if (notSelectingCardViewWhenNoEntities) {
         setData([]);
@@ -279,7 +288,14 @@ const Browse: React.FC<Props> = ({location}) => {
   };
 
   useEffect(() => {
-    initializeUserPreferences();
+    if (searchOptions.relatedToData || initializeRelatedTableView()) {
+      setViewOptions({graphView: false, tableView: true});
+    } else {
+      initializeUserPreferences();
+      setViewOptions({
+        graphView: JSON.parse(getUserPreferences(user.name)).graphView,
+        tableView: JSON.parse(getUserPreferences(user.name)).tableView});
+    }
     return () => {
       componentIsMounted.current = false;
     };
@@ -308,16 +324,18 @@ const Browse: React.FC<Props> = ({location}) => {
           });
         }
 
-
         if (loaded) {
           if (searchOptions.entityTypeIds.length === 0) {
             setEntityTypeIds(entitiesTypeIds);
+            setCurrentBaseEntities(entitiesWithFullProperties);
+          } else {
+            const usedEntities = entitiesWithFullProperties.filter(entity => searchOptions.entityTypeIds.indexOf(entity.name) !== -1);
+            setCurrentBaseEntities(usedEntities);
           }
           setEntityDefinitionsArray(parsedEntityDef);
           setEntitiesData(modelsResponse.data);
           sethubCentralConfig(HubCentralConfigResponse.data);
           setEntityDefArray(entitiesWithFullProperties);
-          setCurrentBaseEntities(entitiesWithFullProperties);
 
         }
 
@@ -338,11 +356,12 @@ const Browse: React.FC<Props> = ({location}) => {
       if (!cardView) setCardView(true);
     }
     fetchUpdatedSearchResults();
+
   }, [tableView, graphView, searchOptions.database, searchOptions.entityTypeIds, searchOptions.nextEntityType, searchOptions.query, searchOptions.selectedFacets, user.error.type, hideDataHubArtifacts]);
 
   useEffect(() => {
     let baseEntitiesSelected = searchOptions.entityTypeIds.length > 0;
-    if (graphView && baseEntitiesSelected && searchOptions.nextEntityType !== "All Data") {
+    if (isGraphView() && baseEntitiesSelected && searchOptions.nextEntityType !== "All Data") {
       getGraphSearchResult(searchOptions.entityTypeIds);
     }
     return () => {
@@ -353,7 +372,7 @@ const Browse: React.FC<Props> = ({location}) => {
   useEffect(() => {
     let state: any = location.state;
     if (state && state["isBackToResultsClicked"]) {
-      getSearchResults(searchOptions.entityTypeIds);
+      getSearchResults(searchOptions.entityTypeIds, searchOptions.relatedToData);
     }
   }, []);
 
@@ -383,7 +402,7 @@ const Browse: React.FC<Props> = ({location}) => {
         state["query"],
         state["sortOrder"],
         state["targetDatabase"]);
-      state["tableView"] ? toggleTableView(true) : toggleTableView(false);
+      state["tableView"] ? setViewOptions({...viewOptions, tableView: true}) : setViewOptions({...viewOptions, tableView: false});
     } else if (state && state.hasOwnProperty("uri")) {
       setPageWithEntity(state["entity"],
         state["pageNumber"],
@@ -392,7 +411,7 @@ const Browse: React.FC<Props> = ({location}) => {
         state["query"],
         state["sortOrder"],
         state["targetDatabase"]);
-      state["tableView"] ? toggleTableView(true) : toggleTableView(false);
+      state["tableView"] ? setViewOptions({...viewOptions, tableView: true}) : setViewOptions({...viewOptions, tableView: false});
     } else if (state
       && state.hasOwnProperty("entityName")
       && state.hasOwnProperty("targetDatabase")
@@ -421,6 +440,26 @@ const Browse: React.FC<Props> = ({location}) => {
     }
   }, [state]);
 
+  const initializeRelatedTableView = () => {
+    let defaultPreferences = getUserPreferences(user.name);
+    if (defaultPreferences !== null) {
+      let parsedPreferences = JSON.parse(defaultPreferences);
+      if (parsedPreferences && parsedPreferences.hasOwnProperty("graphViewOptions")
+        && parsedPreferences.graphViewOptions.hasOwnProperty("relatedView")) {
+        const relatedData = parsedPreferences.graphViewOptions.relatedView;
+        setEntitiesAndRelatedData([relatedData.entityTypeId], relatedData);
+
+        let preferencesObject = {
+          ...parsedPreferences
+        };
+        delete preferencesObject.graphViewOptions.relatedView;
+        updateUserPreferences(user.name, preferencesObject);
+        return true;
+      }
+    }
+    return false;
+  };
+
   const initializeUserPreferences = async () => {
     let state: any = location.state;
     let defaultPreferences = getUserPreferences(user.name);
@@ -438,27 +477,29 @@ const Browse: React.FC<Props> = ({location}) => {
   };
 
   const setUserPreferences = (view: string = "") => {
-    let preferencesObject = {
-      query: {
-        searchText: searchOptions.query,
-        entityTypeIds: searchOptions.entityTypeIds,
-        selectedFacets: searchOptions.selectedFacets,
-        hideHubArtifacts: cardView ? hideDataHubArtifacts : true
-      },
-      pageLength: searchOptions.pageLength,
-      pageNumber: searchOptions.pageNumber,
-      start: searchOptions.start,
-      tableView: view ? (view === "snippet" ? false : true) : tableView,
-      selectedQuery: searchOptions.selectedQuery,
-      queries: queries,
-      propertiesToDisplay: searchOptions.selectedTableProperties,
-      sortOrder: searchOptions.sortOrder,
-      cardView: cardView,
-      graphView: view ? (view === "graph" ? true : false) : graphView,
-      database: searchOptions.database,
-      baseEntities: searchOptions.baseEntities
-    };
-    updateUserPreferences(user.name, preferencesObject);
+    if (!searchOptions.relatedToData) {
+      let preferencesObject = {
+        query: {
+          searchText: searchOptions.query,
+          entityTypeIds: searchOptions.entityTypeIds,
+          selectedFacets: searchOptions.selectedFacets,
+          hideHubArtifacts: cardView ? hideDataHubArtifacts : true
+        },
+        pageLength: searchOptions.pageLength,
+        pageNumber: searchOptions.pageNumber,
+        start: searchOptions.start,
+        tableView: view ? (view === "table" ? true : false) : tableView,
+        selectedQuery: searchOptions.selectedQuery,
+        queries: queries,
+        propertiesToDisplay: searchOptions.selectedTableProperties,
+        sortOrder: searchOptions.sortOrder,
+        cardView: cardView,
+        graphView: view ? (view === "graph" ? true : false) : graphView,
+        database: searchOptions.database,
+        baseEntities: searchOptions.baseEntities
+      };
+      updateUserPreferences(user.name, preferencesObject);
+    }
   };
 
   const handleUserPreferences = () => {
@@ -532,19 +573,18 @@ const Browse: React.FC<Props> = ({location}) => {
   const handleViewChange = (view) => {
     let tableView = "";
     if (view === "graph") {
-      toggleTableView(false);
-      setGraphView(true);
+      setViewOptions({graphView: true, tableView: false});
       tableView = "graph";
     } else if (view === "snippet") {
-      setGraphView(false);
-      toggleTableView(false);
+      setViewOptions({graphView: false, tableView: false});
       tableView = "snippet";
     } else {
-      setGraphView(false);
-      toggleTableView(true);
+      setViewOptions({graphView: false, tableView: true});
       tableView = "table";
     }
-    setUserPreferences(tableView);
+    if (!searchOptions.relatedToData) {
+      setUserPreferences(tableView);
+    }
 
     if (resultsRef && resultsRef.current) {
       resultsRef.current["style"]["boxShadow"] = "none";
@@ -576,6 +616,9 @@ const Browse: React.FC<Props> = ({location}) => {
 
   const numberOfResultsBanner = <span className={styles.graphViewSummaryIcon}>Viewing {graphSearchData["limit"]} of {graphSearchData["total"]} results {helpIcon()}</span>;
 
+  const relatedToTableDataExists = () => {
+    return !searchOptions.relatedToData ? false : true;
+  };
 
   return (
     <div className={styles.layout}>
@@ -680,7 +723,7 @@ const Browse: React.FC<Props> = ({location}) => {
                                 id="switch-view-graph"
                                 name="switch-view-radiogroup"
                                 value={"graph"}
-                                defaultChecked={graphView}
+                                defaultChecked={graphView && !relatedToTableDataExists()}
                                 onChange={e => handleViewChange(e.target.value)}
                               />
                               <HCTooltip text="Graph View" id="graph-view-tooltip" placement="top">
@@ -698,7 +741,7 @@ const Browse: React.FC<Props> = ({location}) => {
                                 id="switch-view-table"
                                 name="switch-view-radiogroup"
                                 value={"table"}
-                                defaultChecked={tableView && !graphView}
+                                defaultChecked={(tableView && !graphView) || relatedToTableDataExists()}
                                 onChange={e => handleViewChange(e.target.value)}
                               />
                               <HCTooltip text="Table View" id="table-view-tooltip" placement="top">
