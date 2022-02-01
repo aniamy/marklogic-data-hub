@@ -26,14 +26,13 @@ import com.marklogic.client.MarkLogicServerException;
 import com.marklogic.client.ResourceNotFoundException;
 import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.Format;
+import com.marklogic.client.io.JacksonHandle;
 import com.marklogic.client.io.StringHandle;
-import com.marklogic.client.query.QueryManager;
-import com.marklogic.client.query.StructuredQueryBuilder;
-import com.marklogic.client.query.StructuredQueryDefinition;
+import com.marklogic.client.query.*;
 import com.marklogic.hub.HubClient;
 import com.marklogic.hub.central.entities.search.impl.CollectionFacetHandler;
 import com.marklogic.hub.central.entities.search.impl.CreatedOnFacetHandler;
-import com.marklogic.hub.central.entities.search.impl.CustomTriplesHandler;
+import com.marklogic.hub.central.entities.search.impl.RawStructuredQueryDefinitionHandler;
 import com.marklogic.hub.central.entities.search.impl.EntityPropertyFacetHandler;
 import com.marklogic.hub.central.entities.search.impl.JobRangeFacetHandler;
 import com.marklogic.hub.central.entities.search.models.DocSearchQueryInfo;
@@ -173,15 +172,15 @@ public class EntitySearchManager {
         });
 
         //Filter by Related document
-        if (searchQuery.getQuery().getRelatedDocument() != null) {
-            //option 1
-            /*StructuredQueryDefinition relatedDef =
-                queryBuilder.and(queryBuilder.term("neighborhood"),
-                    queryBuilder.valueConstraint("triples", "Real Estate"));*/
+        DocSearchQueryInfo.RelatedData relatedData = searchQuery.getQuery().getRelatedDocument();
+        if (relatedData != null) {
+            ObjectNode customConstraint = new ObjectMapper().createObjectNode();
+            customConstraint.put("constraint-name", Constants.TRIPLES_CONSTRAINT_NAME);
+            customConstraint.put("predicate", relatedData.getPredicate());
+            customConstraint.put("object", relatedData.getDocIRI());
+            RawStructuredQueryDefinition rawStructuredQueryDefinition = queryMgr.newRawStructuredQueryDefinition((new JacksonHandle(customConstraint)).withFormat(Format.JSON));
 
-            //option2
-            StructuredQueryDefinition relatedDef = new CustomTriplesHandler().buildQuery(searchQuery.getQuery().getRelatedDocument(), queryBuilder);
-            queries.add(relatedDef);
+            queries.add(new RawStructuredQueryDefinitionHandler(rawStructuredQueryDefinition));
         }
 
         // And between all the queries
