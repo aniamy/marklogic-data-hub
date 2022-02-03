@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.MarkLogicServerException;
 import com.marklogic.client.ResourceNotFoundException;
@@ -32,7 +33,6 @@ import com.marklogic.client.query.*;
 import com.marklogic.hub.HubClient;
 import com.marklogic.hub.central.entities.search.impl.CollectionFacetHandler;
 import com.marklogic.hub.central.entities.search.impl.CreatedOnFacetHandler;
-import com.marklogic.hub.central.entities.search.impl.RawStructuredQueryDefinitionHandler;
 import com.marklogic.hub.central.entities.search.impl.EntityPropertyFacetHandler;
 import com.marklogic.hub.central.entities.search.impl.JobRangeFacetHandler;
 import com.marklogic.hub.central.entities.search.models.DocSearchQueryInfo;
@@ -43,15 +43,25 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Reader;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class EntitySearchManager {
 
@@ -92,7 +102,7 @@ public class EntitySearchManager {
         resultHandle.setFormat(Format.JSON);
         try {
             //buildQuery includes datetime conversion which could cause DateTimeException or DateTimeParseException
-            StructuredQueryDefinition queryDefinition = buildQuery(queryMgr, searchQuery);
+            RawStructuredQueryDefinition queryDefinition = buildQuery(queryMgr, searchQuery);
             queryDefinition.setCriteria(searchQuery.calculateSearchCriteriaWithSortOperator());
 
             List<String> selectedEntityTypes = searchQuery.getQuery().getSelectedEntityTypes();
@@ -126,7 +136,7 @@ public class EntitySearchManager {
         }
     }
 
-    public StructuredQueryDefinition graphSearchQuery(SearchQuery searchQuery) {
+    public RawStructuredQueryDefinition graphSearchQuery(SearchQuery searchQuery) {
 
         if (searchQuery.getQuery().getSelectedFacets().isEmpty()) {
             return null;
@@ -138,7 +148,7 @@ public class EntitySearchManager {
         resultHandle.setFormat(Format.JSON);
         try {
             //buildQuery includes datetime conversion which could cause DateTimeException or DateTimeParseException
-            StructuredQueryDefinition queryDefinition = buildQuery(queryMgr, searchQuery);
+            RawStructuredQueryDefinition queryDefinition = buildQuery(queryMgr, searchQuery);
             return queryDefinition;
 
         } catch (MarkLogicServerException e) {
@@ -158,7 +168,7 @@ public class EntitySearchManager {
         }
     }
 
-    private StructuredQueryDefinition buildQuery(QueryManager queryMgr, SearchQuery searchQuery) {
+    private RawStructuredQueryDefinition buildQuery(QueryManager queryMgr, SearchQuery searchQuery) {
         queryMgr.setPageLength(searchQuery.getPageLength());
         StructuredQueryBuilder queryBuilder = queryMgr.newStructuredQueryBuilder(QUERY_OPTIONS);
         List<StructuredQueryDefinition> queries = new ArrayList<>();
@@ -170,21 +180,36 @@ public class EntitySearchManager {
                 queries.add(facetDef);
             }
         });
+        String structuredQueryStr = queryBuilder.and(queries.toArray(new StructuredQueryDefinition[0])).serialize();
+        DocumentBuilderFactory docbf = DocumentBuilderFactory.newInstance();
+        docbf.setNamespaceAware(true);
 
         //Filter by Related document
         DocSearchQueryInfo.RelatedData relatedData = searchQuery.getQuery().getRelatedDocument();
         if (relatedData != null) {
-            ObjectNode customConstraint = new ObjectMapper().createObjectNode();
-            customConstraint.put("constraint-name", Constants.TRIPLES_CONSTRAINT_NAME);
-            customConstraint.put("predicate", relatedData.getPredicate());
-            customConstraint.put("object", relatedData.getDocIRI());
-            RawStructuredQueryDefinition rawStructuredQueryDefinition = queryMgr.newRawStructuredQueryDefinition((new JacksonHandle(customConstraint)).withFormat(Format.JSON));
-
-            queries.add(new RawStructuredQueryDefinitionHandler(rawStructuredQueryDefinition));
+            DocumentBuilder docBuilder;
+            Document document;
+            try {
+                docBuilder = docbf.newDocumentBuilder();
+                document = docBuilder.parse(new InputSource(new ByteArrayInputStream(structuredQueryStr.getBytes(StandardCharsets.UTF_8))));
+            } catch (IOException|ParserConfigurationException|SAXException e) {
+                throw new RuntimeException("XML parsing error!", e);
+            }
+            Node andQueryNode = document.getElementsByTagNameNS("http://marklogic.com/appservices/search", "and-query").item(0);
+            andQueryNode
+                    .appendChild(document.createElementNS("http://marklogic.com/appservices/search", "custom-constraint-query"))
+                    .appendChild(document.createElementNS("http://marklogic.com/appservices/search", "constraint-name"))
+                    .appendChild(document.createTextNode(Constants.TRIPLES_CONSTRAINT_NAME))
+                    .getParentNode().getParentNode()
+                    .appendChild(document.createElementNS("http://marklogic.com/appservices/search", "predicate"))
+                    .appendChild(document.createTextNode(relatedData.getPredicate()))
+                    .getParentNode().getParentNode()
+                    .appendChild(document.createElementNS("http://marklogic.com/appservices/search", "object"))
+                    .appendChild(document.createTextNode(relatedData.getDocIRI()));
+            structuredQueryStr = document.toString();
         }
-
         // And between all the queries
-        return queryBuilder.and(queries.toArray(new StructuredQueryDefinition[0]));
+        return queryMgr.newRawStructuredQueryDefinition(new StringHandle(structuredQueryStr).withFormat(Format.XML), QUERY_OPTIONS);
     }
 
     private void initializeFacetHandlerMap() {
@@ -211,7 +236,7 @@ public class EntitySearchManager {
     public void exportRows(JsonNode queryDocument, Long limit, OutputStream out) {
         QueryManager queryMgr = searchDatabaseClient.newQueryManager();
         SearchQuery searchQuery = transformToSearchQuery(queryDocument);
-        StructuredQueryDefinition structuredQueryDefinition = buildQuery(queryMgr, searchQuery);
+        RawStructuredQueryDefinition structuredQueryDefinition = buildQuery(queryMgr, searchQuery);
 
         final String structuredQuery = structuredQueryDefinition.serialize();
         final String searchText = searchQuery.getQuery().calculateSearchCriteria();
