@@ -21,13 +21,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.MarkLogicServerException;
 import com.marklogic.client.ResourceNotFoundException;
 import com.marklogic.client.document.ServerTransform;
 import com.marklogic.client.io.Format;
-import com.marklogic.client.io.JacksonHandle;
 import com.marklogic.client.io.StringHandle;
 import com.marklogic.client.query.*;
 import com.marklogic.hub.HubClient;
@@ -44,7 +42,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileCopyUtils;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -53,15 +50,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class EntitySearchManager {
 
@@ -138,7 +135,7 @@ public class EntitySearchManager {
 
     public RawStructuredQueryDefinition graphSearchQuery(SearchQuery searchQuery) {
 
-        if (searchQuery.getQuery().getSelectedFacets().isEmpty()) {
+        if (searchQuery.getQuery().isEmpty()) {
             return null;
         }
         QueryManager queryMgr = searchDatabaseClient.newQueryManager();
@@ -191,23 +188,41 @@ public class EntitySearchManager {
             Document document;
             try {
                 docBuilder = docbf.newDocumentBuilder();
-                document = docBuilder.parse(new InputSource(new ByteArrayInputStream(structuredQueryStr.getBytes(StandardCharsets.UTF_8))));
+                document = docBuilder.parse(new InputSource(new StringReader(structuredQueryStr)));
             } catch (IOException|ParserConfigurationException|SAXException e) {
                 throw new RuntimeException("XML parsing error!", e);
             }
+
             Node andQueryNode = document.getElementsByTagNameNS("http://marklogic.com/appservices/search", "and-query").item(0);
             andQueryNode
                     .appendChild(document.createElementNS("http://marklogic.com/appservices/search", "custom-constraint-query"))
                     .appendChild(document.createElementNS("http://marklogic.com/appservices/search", "constraint-name"))
-                    .appendChild(document.createTextNode(Constants.TRIPLES_CONSTRAINT_NAME))
+                    .appendChild(document.createTextNode(Constants.RELATED_TO_CONSTRAINT_NAME))
                     .getParentNode().getParentNode()
                     .appendChild(document.createElementNS("http://marklogic.com/appservices/search", "predicate"))
                     .appendChild(document.createTextNode(relatedData.getPredicate()))
                     .getParentNode().getParentNode()
-                    .appendChild(document.createElementNS("http://marklogic.com/appservices/search", "object"))
-                    .appendChild(document.createTextNode(relatedData.getDocIRI()));
-            structuredQueryStr = document.toString();
+                    .appendChild(document.createElementNS("http://marklogic.com/appservices/search", "docIRI"))
+                    .appendChild(document.createTextNode(relatedData.getDocIRI()))
+                    .getParentNode().getParentNode()
+                    .appendChild(document.createElementNS("http://marklogic.com/appservices/search", "datatype"))
+                    .appendChild(document.createTextNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"));
+
+
+
+            String output = "";
+            try {
+                TransformerFactory tf = TransformerFactory.newInstance();
+                Transformer transformer = tf.newTransformer();
+                transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+                StringWriter writer = new StringWriter();
+                transformer.transform(new DOMSource(document), new StreamResult(writer));
+                output = writer.getBuffer().toString().replaceAll("\n|\r", "");
+            } catch(Exception e) {}
+
+            structuredQueryStr = output;
         }
+        logger.info(structuredQueryStr);
         // And between all the queries
         return queryMgr.newRawStructuredQueryDefinition(new StringHandle(structuredQueryStr).withFormat(Format.XML), QUERY_OPTIONS);
     }

@@ -158,6 +158,8 @@ public class EntitySearchController extends BaseController {
         String structuredQuery = null;
         String queryOptions = null;
         if (structuredQueryDefinition != null) {
+            logger.info("structuredDefinition found!");
+            logger.info(structuredQueryDefinition.serialize());
             structuredQuery = structuredQueryDefinition.serialize();
             queryOptions =  newEntitySearchManager(database).getQueryOptions();
         }
