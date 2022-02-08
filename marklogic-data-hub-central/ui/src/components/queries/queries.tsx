@@ -46,7 +46,7 @@ const Query: React.FC<Props> = (props) => {
     clearAllGreyFacets,
     setEntity,
     setNextEntity,
-    setBaseEntities,
+    setEntityTypeIds,
     setSavedQueries,
     savedQueries
   } = useContext(SearchContext);
@@ -82,7 +82,7 @@ const Query: React.FC<Props> = (props) => {
         description: queryDescription,
         query: {
           searchText: searchOptions.query,
-          entityTypeIds: searchOptions.baseEntities?.length && searchOptions.baseEntities[0] !== "All Entities" ? searchOptions.baseEntities : props.entities,
+          entityTypeIds: searchOptions.entityTypeIds.length ? searchOptions.entityTypeIds : props.entities,
           selectedFacets: facets,
         },
         propertiesToDisplay: searchOptions.selectedTableProperties,
@@ -432,7 +432,7 @@ const Query: React.FC<Props> = (props) => {
         database: "final",
       };
       applySaveQuery(options);
-      setBaseEntities([]);
+      setEntityTypeIds([]);
       clearAllGreyFacets();
     }
   };

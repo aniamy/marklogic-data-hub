@@ -26,13 +26,14 @@ const BaseEntitiesFacet: React.FC<Props> = (props) => {
   const {setCurrentBaseEntities, setEntitySpecificPanel, currentBaseEntities, allBaseEntities, setIsAllEntitiesSelected} = props;
 
   const {
-    searchOptions: {baseEntities},
+    searchOptions: {entityTypeIds},
     setBaseEntitiesWithProperties,
     setBaseEntities,
+    setEntityTypeIds,
     setRelatedEntityTypeIds
   } = useContext(SearchContext);
 
-  const [entityNames, setEntityNames] = useState<string[]>(baseEntities);
+  const [entityNames, setEntityNames] = useState<string[]>(entityTypeIds);
   const [displayList, setDisplayList] = useState<any[]>(entitiesSorting(currentBaseEntities));
   const [showMore, setShowMore] = useState<boolean>(false);
 
@@ -41,10 +42,10 @@ const BaseEntitiesFacet: React.FC<Props> = (props) => {
   }, [currentBaseEntities]);
 
   useEffect(() => {
-    if (baseEntities === [] || baseEntities === ["All Entities"]) {
+    if (entityTypeIds === [] || entityTypeIds === ["All Entities"]) {
       setCurrentBaseEntities(allBaseEntities);
     }
-  }, [baseEntities]);
+  }, [entityTypeIds]);
 
   const childrenOptions = allBaseEntities.map(element => ({value: element.name, label: element.name, isDisabled: false})).filter(obj => obj.value && obj.label);
   childrenOptions.unshift({
@@ -66,7 +67,8 @@ const BaseEntitiesFacet: React.FC<Props> = (props) => {
       setIsAllEntitiesSelected(true);
       setEntityNames(["All Entities"]);
       setCurrentBaseEntities(allBaseEntities);
-      setBaseEntities([]);
+      setEntityTypeIds(allBaseEntities.map(entities => entities.name));
+      setRelatedEntityTypeIds([]);
       if (props.activeKey.indexOf("related-entities") !== -1) { props.setActiveAccordionRelatedEntities("related-entities"); }
     } else {
       const clearSelection = selectedItems.filter(entity => entity !== "All Entities").map((entity => entity));
@@ -74,6 +76,7 @@ const BaseEntitiesFacet: React.FC<Props> = (props) => {
       setIsAllEntitiesSelected(false);
       setEntityNames(clearSelection);
       setCurrentBaseEntities(filteredEntities);
+      setEntityTypeIds(clearSelection);
       if (props.activeKey.indexOf("related-entities") === -1) { props.setActiveAccordionRelatedEntities("related-entities"); }
 
       if (filteredEntities.length === 1) {

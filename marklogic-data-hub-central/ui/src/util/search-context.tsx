@@ -6,7 +6,8 @@ import {QueryOptions} from "../types/query-types";
 type SearchContextInterface = {
   query: string,
   entityTypeIds: string[],
-  relatedEntityTypeIds: any[],
+  baseEntities: any[], //list of entities
+  relatedEntityTypeIds: string[],
   nextEntityType: string,
   start: number,
   pageNumber: number,
@@ -22,12 +23,12 @@ type SearchContextInterface = {
   sortOrder: any,
   database: string,
   datasource: string,
-  baseEntities: string[],
 }
 
 const defaultSearchOptions = {
   query: "",
   entityTypeIds: [],
+  baseEntities: [],
   relatedEntityTypeIds: [],
   nextEntityType: "",
   start: 1,
@@ -44,7 +45,6 @@ const defaultSearchOptions = {
   sortOrder: [],
   database: "final",
   datasource: "entities",
-  baseEntities: [],
 };
 
 
@@ -56,7 +56,8 @@ interface ISearchContextInterface {
   setPageLength: (current: number, pageSize: number) => void;
   setSearchFacets: (constraint: string, vals: string[]) => void;
   setEntity: (option: string) => void;
-  setNextEntity: (option: string) => void;
+  setEntityTypeIds: (setEntityIds: string[]) => void;
+  setNextEntity: (option: string) => void; //TODO delete this? I believe we don't use it anymore (Ani)
   setRelatedEntityTypeIds: (option: any[]) => void;
   setEntityClearQuery: (option: string) => void;
   setLatestJobFacet: (vals: string, entityName: string, targetDatabase?: string, collectionVals?: string) => void;
@@ -91,7 +92,6 @@ interface ISearchContextInterface {
   setEntityDefinitionsArray: (entDefinitionsArray: any) => void;
   setGraphViewOptions: (entityInstanceId: string | undefined) => void;
   setDatasource: (option: string) => void;
-  setBaseEntities: (baseEntities: string[]) => void;
   savedNode: any,
   setSavedNode: (node: any) => void;
   setSearchOptions: (searchOptions: SearchContextInterface) => void;
@@ -114,6 +114,7 @@ export const SearchContext = React.createContext<ISearchContextInterface>({
   setPageLength: () => { },
   setSearchFacets: () => { },
   setEntity: () => { },
+  setEntityTypeIds: () => { },
   setNextEntity: () => { },
   setRelatedEntityTypeIds: () => { },
   setEntityClearQuery: () => { },
@@ -144,7 +145,6 @@ export const SearchContext = React.createContext<ISearchContextInterface>({
   setLatestDatabase: () => { },
   setGraphViewOptions: () => { },
   setDatasource: () => { },
-  setBaseEntities: () => { },
   setSearchOptions: () => { },
 });
 
@@ -240,7 +240,7 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
   };
 
   const setEntity = (option: string) => {
-    let entityOptions = (option === "All Entities" || option === "All Data") ? [] : [option];
+    let entityOptions = option === "All Entities" ? entityDefinitionsArray : option === "All Data" ? [] : [option];
     setSearchOptions({
       ...searchOptions,
       start: 1,
@@ -308,7 +308,7 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
       ...searchOptions,
       start: 1,
       selectedFacets: facets,
-      entityTypeIds: entityName === "All Entities" ? [] : [entityName],
+      entityTypeIds: entityName === "All Entities" ? entityDefinitionsArray : [entityName],
       nextEntityType: entityName === "All Entities" ? "" : entityName,
       selectedTableProperties: [],
       pageNumber: 1,
@@ -646,10 +646,10 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
     });
   };
 
-  const setBaseEntities = (baseEntities: string[]) => {
+  const setEntityIds = (entityTypeIds: string[]) => {
     setSearchOptions({
       ...searchOptions,
-      baseEntities
+      entityTypeIds
     });
   };
 
@@ -706,7 +706,7 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
       setLatestDatabase,
       setGraphViewOptions,
       setDatasource,
-      setBaseEntities,
+      setEntityTypeIds: setEntityIds,
       setSearchOptions,
     }}>
       {children}

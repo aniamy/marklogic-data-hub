@@ -57,7 +57,9 @@ const Browse: React.FC<Props> = ({location}) => {
   const searchBarRef = useRef<HTMLDivElement>(null);
   const authorityService = useContext(AuthoritiesContext);
   const [data, setData] = useState<any[]>([]);
-  const [entities, setEntites] = useState<any[]>([]);
+  const [currentBaseEntities, setCurrentBaseEntities] = useState<any[]>([]);
+  const [currentEntitiesIcons, setCurrentEntitiesIcons] = useState<any[]>([]);
+  const [currentRelatedEntities, setCurrentRelatedEntities] = useState<Map<string, any>>(new Map());
   const [entityDefArray, setEntityDefArray] = useState<any[]>([]);
   const [facets, setFacets] = useState<any>();
   const [isLoading, setIsLoading] = useState(true);
@@ -84,9 +86,6 @@ const Browse: React.FC<Props> = ({location}) => {
   const [showMainSidebar, setShowMainSidebar] = useState<boolean>(true);
   const [showEntitySpecificPanel, setShowEntitySpecificPanel] = useState<boolean>(false);
   const [graphView, setGraphView] = useState(state && state.graphView ? true : JSON.parse(getUserPreferences(user.name)).graphView);
-  const [currentBaseEntities, setCurrentBaseEntities] = useState<any[]>([]);
-  const [currentEntitiesIcons, setCurrentEntitiesIcons] = useState<any[]>([]);
-  const [currentRelatedEntities, setCurrentRelatedEntities] = useState<Map<string, any>>(new Map());
   const [applyClicked, toggleApplyClicked] = useState(false);
   const [showApply, toggleApply] = useState(false);
   const [updateSpecificFacets, setUpdateSpecificFacets] = useState<boolean>(false);
@@ -155,7 +154,7 @@ const Browse: React.FC<Props> = ({location}) => {
         "data": {
           "query": {
             "searchText": searchOptions.query,
-            "entityTypeIds": searchOptions.baseEntities && searchOptions.baseEntities.length && searchOptions.baseEntities[0] !== "All Entities" ? searchOptions.baseEntities : allEntities,
+            "entityTypeIds": allEntities,
             "selectedFacets": searchOptions.selectedFacets,
             "relatedEntityTypeIds": searchOptions.relatedEntityTypeIds
           },
@@ -205,7 +204,6 @@ const Browse: React.FC<Props> = ({location}) => {
         const parsedModelData = entityFromJSON(response.data);
         let entityArray = [...entityFromJSON(response.data).map(entity => entity.info.title)];
         let parsedEntityDef = entityParser(parsedModelData);
-        setEntites(entityArray);
         setHubCentralConfigFromServer(parsedEntityDef);
         setEntityDefinitionsArray(parsedEntityDef);
         setEntitiesData(response.data);
@@ -228,7 +226,7 @@ const Browse: React.FC<Props> = ({location}) => {
         data: {
           query: {
             searchText,
-            entityTypeIds: cardView ? [] : searchOptions.baseEntities && searchOptions.baseEntities.length && searchOptions.baseEntities[0] !== "All Entities" ? searchOptions.baseEntities : allEntities,
+            entityTypeIds: cardView ? [] : searchOptions.entityTypeIds && searchOptions.entityTypeIds.length ? searchOptions.entityTypeIds : allEntities,
             selectedFacets: searchOptions.selectedFacets,
             hideHubArtifacts: cardView ? hideDataHubArtifacts : true
           },
@@ -290,12 +288,12 @@ const Browse: React.FC<Props> = ({location}) => {
   };
 
   const fetchUpdatedSearchResults = () => {
-    let entityTypesExistOrNoEntityTypeIsSelected = (entities.length > 0 || (searchOptions.nextEntityType === "All Data" || searchOptions.nextEntityType === "All Entities" || searchOptions.nextEntityType === undefined));
-    let defaultOptionsForPageRefresh = !searchOptions.nextEntityType && (entities.length > 0 || cardView);
-    let selectingAllEntitiesOption = (searchOptions.nextEntityType === "All Entities" && !isColumnSelectorTouched && !searchOptions.entityTypeIds.length && !cardView && entities.length > 0 && !entitySpecificPanel);
+    let entityTypesExistOrNoEntityTypeIsSelected = (searchOptions.entityTypeIds.length > 0 || (searchOptions.nextEntityType === "All Data" || searchOptions.nextEntityType === "All Entities" || searchOptions.nextEntityType === undefined));
+    let defaultOptionsForPageRefresh = !searchOptions.nextEntityType && (searchOptions.entityTypeIds.length > 0 || cardView);
+    let selectingAllEntitiesOption = (searchOptions.nextEntityType === "All Entities" && !isColumnSelectorTouched && !searchOptions.entityTypeIds.length && !cardView && searchOptions.entityTypeIds.length > 0 && !entitySpecificPanel);
     let selectingAllDataOption = (searchOptions.nextEntityType === "All Data" && !isColumnSelectorTouched && !searchOptions.entityTypeIds.length && cardView && !entitySpecificPanel);
     let selectingEntityType = (searchOptions.nextEntityType && !["All Entities", "All Data"].includes(searchOptions.nextEntityType) && searchOptions.entityTypeIds[0] === searchOptions.nextEntityType || entitySpecificPanel);
-    let notSelectingCardViewWhenNoEntities = !cardView && (!entities.length && !searchOptions.entityTypeIds.length || !searchOptions.nextEntityType);
+    let notSelectingCardViewWhenNoEntities = !cardView && (!searchOptions.entityTypeIds.length && !searchOptions.entityTypeIds.length || !searchOptions.nextEntityType);
 
     if (entityTypesExistOrNoEntityTypeIsSelected &&
       (
@@ -304,7 +302,7 @@ const Browse: React.FC<Props> = ({location}) => {
         selectingAllDataOption ||
         selectingEntityType
       )) {
-      getSearchResults(entities);
+      getSearchResults(searchOptions.entityTypeIds);
     } else {
       if (notSelectingCardViewWhenNoEntities) {
         setData([]);
@@ -330,25 +328,23 @@ const Browse: React.FC<Props> = ({location}) => {
       setCardView(false);
     }
     fetchUpdatedSearchResults();
-  }, [searchOptions, entities, user.error.type, hideDataHubArtifacts]);
+  }, [searchOptions.nextEntityType, user.error.type, hideDataHubArtifacts]);
 
   useEffect(() => {
-    if (searchOptions.baseEntities) {
-      let noBaseEntitiesSelected = Object.keys(searchOptions.baseEntities).length === 0;
-      let noRelatedEntities = Object.keys(searchOptions.relatedEntityTypeIds).length === 0;
-      if ((noBaseEntitiesSelected && noRelatedEntities) || !noBaseEntitiesSelected) {
-        getGraphSearchResult(entities);
-      }
-      return () => {
-        setGraphSearchData({});
-      };
+    let noBaseEntitiesSelected = searchOptions.entityTypeIds.length === 0;
+    let noRelatedEntities = searchOptions.relatedEntityTypeIds.length === 0;
+    if ((noBaseEntitiesSelected && noRelatedEntities) || !noBaseEntitiesSelected) {
+      getGraphSearchResult(searchOptions.entityTypeIds);
     }
-  }, [searchOptions.baseEntities, searchOptions.relatedEntityTypeIds, searchOptions.database, searchOptions.query, searchOptions.selectedFacets, entities, user.error.type, hideDataHubArtifacts]);
+    return () => {
+      setGraphSearchData({});
+    };
+  }, [searchOptions.entityTypeIds, searchOptions.relatedEntityTypeIds, searchOptions.database, searchOptions.query, searchOptions.selectedFacets, user.error.type, hideDataHubArtifacts]);
 
   useEffect(() => {
     let state: any = location.state;
     if (state && state["isBackToResultsClicked"]) {
-      getSearchResults(entities);
+      getSearchResults(searchOptions.entityTypeIds);
     }
   }, []);
 
@@ -459,7 +455,7 @@ const Browse: React.FC<Props> = ({location}) => {
   const handleUserPreferences = () => {
     setUserPreferences();
 
-    if (searchOptions.entityTypeIds.length > 0 && !entities.includes(searchOptions.entityTypeIds[0])) {
+    if (searchOptions.entityTypeIds.length > 0 && !searchOptions.entityTypeIds.includes(searchOptions.entityTypeIds[0])) {
       // entityName is not part of entity model from model payload
       // change user preferences to default user pref.
       createUserPreferences(user.name);
@@ -591,7 +587,7 @@ const Browse: React.FC<Props> = ({location}) => {
                 isSavedQueryUser={isSavedQueryUser}
                 columns={columns}
                 setIsLoading={setIsLoading}
-                entities={entities}
+                entities={searchOptions.entityTypeIds}
                 selectedFacets={selectedFacets}
                 greyFacets={greyFacets}
                 isColumnSelectorTouched={isColumnSelectorTouched}
