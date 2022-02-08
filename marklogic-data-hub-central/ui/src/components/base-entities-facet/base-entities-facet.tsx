@@ -26,26 +26,35 @@ const BaseEntitiesFacet: React.FC<Props> = (props) => {
   const {setCurrentBaseEntities, setEntitySpecificPanel, currentBaseEntities, allBaseEntities, setIsAllEntitiesSelected} = props;
 
   const {
-    searchOptions: {entityTypeIds},
     setBaseEntitiesWithProperties,
-    setBaseEntities,
     setEntityTypeIds,
-    setRelatedEntityTypeIds
+    setRelatedEntityTypeIds,
+    searchOptions,
+    setSearchOptions,
   } = useContext(SearchContext);
 
-  const [entityNames, setEntityNames] = useState<string[]>(entityTypeIds);
+  const [entityNames, setEntityNames] = useState<string[]>(searchOptions.entityTypeIds.length === 0 ? ["All Entities"] : searchOptions.entityTypeIds) ;
   const [displayList, setDisplayList] = useState<any[]>(entitiesSorting(currentBaseEntities));
   const [showMore, setShowMore] = useState<boolean>(false);
+
+
+
+  useEffect(() => {
+    const isAllEntities = searchOptions.entityTypeIds.length === 0 || searchOptions.entityTypeIds.length === allBaseEntities.length;
+    if (isAllEntities) {
+      setEntityNames(["All Entities"]);
+    }
+  }, [allBaseEntities]);
 
   useEffect(() => {
     setDisplayList(currentBaseEntities);
   }, [currentBaseEntities]);
 
   useEffect(() => {
-    if (entityTypeIds === [] || entityTypeIds === ["All Entities"]) {
+    if (searchOptions.entityTypeIds.length === 0) {
       setCurrentBaseEntities(allBaseEntities);
     }
-  }, [entityTypeIds]);
+  }, [searchOptions.entityTypeIds]);
 
   const childrenOptions = allBaseEntities.map(element => ({value: element.name, label: element.name, isDisabled: false})).filter(obj => obj.value && obj.label);
   childrenOptions.unshift({
@@ -67,8 +76,11 @@ const BaseEntitiesFacet: React.FC<Props> = (props) => {
       setIsAllEntitiesSelected(true);
       setEntityNames(["All Entities"]);
       setCurrentBaseEntities(allBaseEntities);
-      setEntityTypeIds(allBaseEntities.map(entities => entities.name));
-      setRelatedEntityTypeIds([]);
+      setSearchOptions({...searchOptions,
+        entityTypeIds: allBaseEntities.map(entities => entities.name),
+        baseEntities: allBaseEntities,
+        relatedEntityTypeIds: []
+      });
       if (props.activeKey.indexOf("related-entities") !== -1) { props.setActiveAccordionRelatedEntities("related-entities"); }
     } else {
       const clearSelection = selectedItems.filter(entity => entity !== "All Entities").map((entity => entity));
@@ -76,14 +88,17 @@ const BaseEntitiesFacet: React.FC<Props> = (props) => {
       setIsAllEntitiesSelected(false);
       setEntityNames(clearSelection);
       setCurrentBaseEntities(filteredEntities);
-      setEntityTypeIds(clearSelection);
+      setSearchOptions({...searchOptions,
+        entityTypeIds: clearSelection,
+        baseEntities: filteredEntities
+      });
       if (props.activeKey.indexOf("related-entities") === -1) { props.setActiveAccordionRelatedEntities("related-entities"); }
 
       if (filteredEntities.length === 1) {
         let queryColumnsToDisplay = filteredEntities[0].properties?.map(property => { return property.name; });
         setBaseEntitiesWithProperties(clearSelection, queryColumnsToDisplay);
       } else {
-        setBaseEntities(clearSelection);
+        setEntityTypeIds(clearSelection);
       }
     }
   };

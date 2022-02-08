@@ -52,7 +52,8 @@ const Browse: React.FC<Props> = ({location}) => {
     setDatabase,
     setLatestDatabase,
     setEntityDefinitionsArray,
-    clearAllGreyFacets
+    clearAllGreyFacets,
+    setSearchOptions
   } = useContext(SearchContext);
   const searchBarRef = useRef<HTMLDivElement>(null);
   const authorityService = useContext(AuthoritiesContext);
@@ -174,23 +175,29 @@ const Browse: React.FC<Props> = ({location}) => {
   const setHubCentralConfigFromServer = async (parsedEntityDef) => {
     try {
       const response = await getHubCentralConfig();
+      let entitiesDef = parsedEntityDef;
       if (response["status"] === 200 && response.data && Object.keys(response.data).length > 0) {
         sethubCentralConfig(response.data);
 
         const {data: {modeling: {entities}}} = response;
-        let entitiesDef = parsedEntityDef.map(entity => {
+        entitiesDef = parsedEntityDef.map(entity => {
           if (entities[entity.name]) {
             entity.icon = entities[entity.name].icon;
             entity.color = entities[entity.name].color;
           }
           return entity;
         });
-        setEntityDefArray(entitiesDef);
-        setCurrentBaseEntities(entitiesDef);
-      } else {
-        setEntityDefArray(parsedEntityDef);
-        setCurrentBaseEntities(parsedEntityDef);
+
       }
+      setEntityDefArray(entitiesDef);
+      setCurrentBaseEntities(entitiesDef);
+
+      const entityArray = entitiesDef.map(entity => entity.name);
+      setSearchOptions({...searchOptions,
+        entityTypeIds: entityArray,
+        baseEntities: entitiesDef
+      })
+
     } catch (error) {
       handleError(error);
     }
@@ -328,18 +335,17 @@ const Browse: React.FC<Props> = ({location}) => {
       setCardView(false);
     }
     fetchUpdatedSearchResults();
-  }, [searchOptions.nextEntityType, user.error.type, hideDataHubArtifacts]);
+  }, [searchOptions.entityTypeIds, searchOptions.nextEntityType, user.error.type, hideDataHubArtifacts]);
 
   useEffect(() => {
-    let noBaseEntitiesSelected = searchOptions.entityTypeIds.length === 0;
-    let noRelatedEntities = searchOptions.relatedEntityTypeIds.length === 0;
-    if ((noBaseEntitiesSelected && noRelatedEntities) || !noBaseEntitiesSelected) {
+    let baseEntitiesSelected = searchOptions.entityTypeIds.length > 0;
+    if (graphView && baseEntitiesSelected) {
       getGraphSearchResult(searchOptions.entityTypeIds);
     }
     return () => {
       setGraphSearchData({});
     };
-  }, [searchOptions.entityTypeIds, searchOptions.relatedEntityTypeIds, searchOptions.database, searchOptions.query, searchOptions.selectedFacets, user.error.type, hideDataHubArtifacts]);
+  }, [graphView, searchOptions.entityTypeIds, searchOptions.relatedEntityTypeIds, searchOptions.database, searchOptions.query, searchOptions.selectedFacets, user.error.type, hideDataHubArtifacts]);
 
   useEffect(() => {
     let state: any = location.state;

@@ -646,7 +646,7 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
     });
   };
 
-  const setEntityIds = (entityTypeIds: string[]) => {
+  const setEntityTypeIds = (entityTypeIds: string[]) => {
     setSearchOptions({
       ...searchOptions,
       entityTypeIds
@@ -706,7 +706,7 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
       setLatestDatabase,
       setGraphViewOptions,
       setDatasource,
-      setEntityTypeIds: setEntityIds,
+      setEntityTypeIds,
       setSearchOptions,
     }}>
       {children}
