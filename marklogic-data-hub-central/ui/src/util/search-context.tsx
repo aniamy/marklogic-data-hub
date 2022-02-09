@@ -536,10 +536,10 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
     });
   };
 
-  const setBaseEntitiesWithProperties = (baseEntities: string[], propertiesToDisplay: string[]) => {
+  const setBaseEntitiesWithProperties = (entityTypeIds: string[], propertiesToDisplay: string[]) => {
     setSearchOptions({
       ...searchOptions,
-      baseEntities: baseEntities,
+      entityTypeIds: entityTypeIds,
       selectedTableProperties: propertiesToDisplay
     });
   };

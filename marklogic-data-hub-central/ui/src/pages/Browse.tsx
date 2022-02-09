@@ -53,7 +53,7 @@ const Browse: React.FC<Props> = ({location}) => {
     setLatestDatabase,
     setEntityDefinitionsArray,
     clearAllGreyFacets,
-    setSearchOptions
+    setEntityTypeIds
   } = useContext(SearchContext);
   const searchBarRef = useRef<HTMLDivElement>(null);
   const authorityService = useContext(AuthoritiesContext);
@@ -192,12 +192,9 @@ const Browse: React.FC<Props> = ({location}) => {
       setEntityDefArray(entitiesDef);
       setCurrentBaseEntities(entitiesDef);
 
-      const entityArray = entitiesDef.map(entity => entity.name);
-      setSearchOptions({...searchOptions,
-        entityTypeIds: entityArray,
-        baseEntities: entitiesDef
-      })
-
+      const entityArray = entitiesDef.map(entity => entity.name).filter(entity => entity && entity);
+      setEntityTypeIds(entityArray);
+      return;
     } catch (error) {
       handleError(error);
     }
@@ -211,7 +208,7 @@ const Browse: React.FC<Props> = ({location}) => {
         const parsedModelData = entityFromJSON(response.data);
         let entityArray = [...entityFromJSON(response.data).map(entity => entity.info.title)];
         let parsedEntityDef = entityParser(parsedModelData);
-        setHubCentralConfigFromServer(parsedEntityDef);
+        await setHubCentralConfigFromServer(parsedEntityDef);
         setEntityDefinitionsArray(parsedEntityDef);
         setEntitiesData(response.data);
         getGraphSearchResult(entityArray);
@@ -335,7 +332,7 @@ const Browse: React.FC<Props> = ({location}) => {
       setCardView(false);
     }
     fetchUpdatedSearchResults();
-  }, [searchOptions.entityTypeIds, searchOptions.nextEntityType, user.error.type, hideDataHubArtifacts]);
+  }, [tableView, graphView, searchOptions, searchOptions.nextEntityType, user.error.type, hideDataHubArtifacts]);
 
   useEffect(() => {
     let baseEntitiesSelected = searchOptions.entityTypeIds.length > 0;
@@ -565,7 +562,7 @@ const Browse: React.FC<Props> = ({location}) => {
   const helpIcon = () => (
     <span>
       <HCTooltip text={graphSearchData["limit"] > 1000 ? ExploreToolTips.largeDatasetWarning : ExploreToolTips.numberOfResults} id="asterisk-help-tooltip" placement="right">
-        {graphSearchData["limit"] > 1000 ? <i data-testid="warning-large-data"><FontAwesomeIcon icon={faExclamationTriangle} className={styles.largeDatasetWarning}/></i> :
+        {graphSearchData["limit"] > 1000 ? <i data-testid="warning-large-data"><FontAwesomeIcon icon={faExclamationTriangle} className={styles.largeDatasetWarning} /></i> :
           <QuestionCircleFill color="#7F86B5" className={styles.questionCircle} size={13} />}
       </HCTooltip>
     </span>

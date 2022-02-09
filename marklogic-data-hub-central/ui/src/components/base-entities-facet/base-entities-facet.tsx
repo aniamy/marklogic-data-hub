@@ -44,7 +44,7 @@ const BaseEntitiesFacet: React.FC<Props> = (props) => {
     if (isAllEntities) {
       setEntityNames(["All Entities"]);
     }
-  }, [allBaseEntities]);
+  }, [searchOptions.entityTypeIds]);
 
   useEffect(() => {
     setDisplayList(currentBaseEntities);
