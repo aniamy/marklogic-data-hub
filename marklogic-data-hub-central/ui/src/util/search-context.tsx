@@ -645,10 +645,11 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
   };
 
   const setEntityTypeIds = (entityTypeIds: string[]) => {
-    setSearchOptions({
+    const NEWOPTIONS = {
       ...searchOptions,
-      entityTypeIds
-    });
+      entityTypeIds: entityTypeIds,
+    };
+    setSearchOptions(NEWOPTIONS);
   };
 
   useEffect(() => {

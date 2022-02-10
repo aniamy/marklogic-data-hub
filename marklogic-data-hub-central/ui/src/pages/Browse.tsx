@@ -53,7 +53,7 @@ const Browse: React.FC<Props> = ({location}) => {
     setLatestDatabase,
     setEntityDefinitionsArray,
     clearAllGreyFacets,
-    setEntityTypeIds
+    setEntityTypeIds,
   } = useContext(SearchContext);
   const searchBarRef = useRef<HTMLDivElement>(null);
   const authorityService = useContext(AuthoritiesContext);
@@ -172,52 +172,6 @@ const Browse: React.FC<Props> = ({location}) => {
     }
   };
 
-  const setHubCentralConfigFromServer = async (parsedEntityDef) => {
-    try {
-      const response = await getHubCentralConfig();
-      let entitiesDef = parsedEntityDef;
-      if (response["status"] === 200 && response.data && Object.keys(response.data).length > 0) {
-        sethubCentralConfig(response.data);
-
-        const {data: {modeling: {entities}}} = response;
-        entitiesDef = parsedEntityDef.map(entity => {
-          if (entities[entity.name]) {
-            entity.icon = entities[entity.name].icon;
-            entity.color = entities[entity.name].color;
-          }
-          return entity;
-        });
-
-      }
-      setEntityDefArray(entitiesDef);
-      setCurrentBaseEntities(entitiesDef);
-
-      const entityArray = entitiesDef.map(entity => entity.name).filter(entity => entity && entity);
-      setEntityTypeIds(entityArray);
-      return;
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
-
-  const getEntityModel = async () => {
-    try {
-      const response = await axios.get(`/api/models`);
-      if (componentIsMounted.current) {
-        const parsedModelData = entityFromJSON(response.data);
-        let entityArray = [...entityFromJSON(response.data).map(entity => entity.info.title)];
-        let parsedEntityDef = entityParser(parsedModelData);
-        await setHubCentralConfigFromServer(parsedEntityDef);
-        setEntityDefinitionsArray(parsedEntityDef);
-        setEntitiesData(response.data);
-      }
-    } catch (error) {
-      handleError(error);
-    }
-  };
-
-
   const getSearchResults = async (allEntities: string[]) => {
     let searchText = searchOptions.query;
     try {
@@ -319,7 +273,6 @@ const Browse: React.FC<Props> = ({location}) => {
   };
 
   useEffect(() => {
-    getEntityModel();
     initializeUserPreferences();
     return () => {
       componentIsMounted.current = false;
@@ -327,10 +280,55 @@ const Browse: React.FC<Props> = ({location}) => {
   }, []);
 
   useEffect(() => {
-      //This can be a toggle when nextEntityType is replaced with the All Data/All Entities toggle.
+    let loaded = true;
+    (async () => {
+      try {
+        const modelsResponse = await axios.get(`/api/models`);
+        const HubCentralConfigResponse = await getHubCentralConfig();
+        const parsedModelData = entityFromJSON(modelsResponse.data);
+        let parsedEntityDef = entityParser(parsedModelData).filter(entity => entity.name && entity);
+        const entitiesTypeIds = parsedEntityDef.map(entity => entity.name);
+
+        // this block is to add colors an icons to the entities
+        let entitiesWithFullProperties = parsedEntityDef;
+        if (HubCentralConfigResponse["status"] === 200 && HubCentralConfigResponse.data && Object.keys(HubCentralConfigResponse.data).length > 0) {
+          const {data: {modeling: {entities}}} = HubCentralConfigResponse;
+          entitiesWithFullProperties = parsedEntityDef.map(entity => {
+            if (entities[entity.name]) {
+              entity.icon = entities[entity.name].icon;
+              entity.color = entities[entity.name].color;
+            }
+            return entity;
+          });
+        }
+
+
+        if (loaded) {
+          if (searchOptions.entityTypeIds.length === 0) {
+            setEntityTypeIds(entitiesTypeIds);
+          }
+          setEntityDefinitionsArray(parsedEntityDef);
+          setEntitiesData(modelsResponse.data);
+          sethubCentralConfig(HubCentralConfigResponse.data);
+          setEntityDefArray(entitiesWithFullProperties);
+          setCurrentBaseEntities(entitiesWithFullProperties);
+
+        }
+
+      } catch (error) {
+        handleError(error);
+      }
+    })();
+    return () => {
+      loaded = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    //This can be a toggle when nextEntityType is replaced with the All Data/All Entities toggle.
     if (searchOptions.nextEntityType && searchOptions.nextEntityType === "All Entities") {
       setCardView(false);
-    } else if (searchOptions.nextEntityType && searchOptions.nextEntityType === "All Data"){
+    } else if (searchOptions.nextEntityType && searchOptions.nextEntityType === "All Data") {
       setCardView(true);
     }
     fetchUpdatedSearchResults();
