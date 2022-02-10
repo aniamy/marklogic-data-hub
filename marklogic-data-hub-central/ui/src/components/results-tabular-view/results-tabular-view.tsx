@@ -373,7 +373,7 @@ const ResultsTabularView = (props) => {
           </HCTooltip>
         </div>
       </div>;
-    if (props.selectedEntities?.length === 0 && item.hasOwnProperty("entityName")) {
+    if (props.selectedEntities?.length > 1 && item.hasOwnProperty("entityName")) {
       let itemIdentifier = item.identifier?.propertyValue;
       let itemEntityName = item.entityName;
       let document = item.uri.split("/")[item.uri.split("/").length - 1];
