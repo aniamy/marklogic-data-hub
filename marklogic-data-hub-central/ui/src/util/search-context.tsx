@@ -8,7 +8,7 @@ type SearchContextInterface = {
   entityTypeIds: string[],
   baseEntities: any[], //list of entities
   relatedEntityTypeIds: string[],
-  nextEntityType: string,
+  nextEntityType: string, //This can change to a boolean for the All Data/All Entities toggle.
   start: number,
   pageNumber: number,
   pageLength: number,
@@ -55,9 +55,9 @@ interface ISearchContextInterface {
   setPage: (pageNumber: number, totalDocuments: number) => void;
   setPageLength: (current: number, pageSize: number) => void;
   setSearchFacets: (constraint: string, vals: string[]) => void;
-  setEntity: (option: string) => void;
+  setEntity: () => void;
   setEntityTypeIds: (setEntityIds: string[]) => void;
-  setNextEntity: (option: string) => void; //TODO delete this? I believe we don't use it anymore (Ani)
+  setNextEntity: (option: string) => void;
   setRelatedEntityTypeIds: (option: any[]) => void;
   setEntityClearQuery: (option: string) => void;
   setLatestJobFacet: (vals: string, entityName: string, targetDatabase?: string, collectionVals?: string) => void;
@@ -239,15 +239,14 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
     });
   };
 
-  const setEntity = (option: string) => {
-    let entityOptions = option === "All Entities" ? entityDefinitionsArray : option === "All Data" ? [] : [option];
+  const setEntity = () => {
+
     setSearchOptions({
       ...searchOptions,
       start: 1,
       query: "",
       pageNumber: 1,
       selectedFacets: {},
-      entityTypeIds: entityOptions,
       pageLength: searchOptions.pageSize,
       selectedQuery: "select a query",
       selectedTableProperties: [],
@@ -260,7 +259,6 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
       query: "",
       pageNumber: 1,
       selectedFacets: {},
-      entityTypeIds: entityOptions,
       pageLength: greyedOptions.pageSize,
       sortOrder: []
     });

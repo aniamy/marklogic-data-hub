@@ -368,7 +368,7 @@ const Query: React.FC<Props> = (props) => {
     } else {
       props.setCardView(false);
     }
-    setEntity(searchOptions.nextEntityType);
+    setEntity();
     toggleSaveNewIcon(false);
     props.setColumnSelectorTouched(false);
     setCurrentQuery({});

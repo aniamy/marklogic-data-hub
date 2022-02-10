@@ -211,7 +211,6 @@ const Browse: React.FC<Props> = ({location}) => {
         await setHubCentralConfigFromServer(parsedEntityDef);
         setEntityDefinitionsArray(parsedEntityDef);
         setEntitiesData(response.data);
-        getGraphSearchResult(entityArray);
       }
     } catch (error) {
       handleError(error);
@@ -292,14 +291,14 @@ const Browse: React.FC<Props> = ({location}) => {
   };
 
   const fetchUpdatedSearchResults = () => {
-    let entityTypesExistOrNoEntityTypeIsSelected = (searchOptions.entityTypeIds.length > 0 || (searchOptions.nextEntityType === "All Data" || searchOptions.nextEntityType === "All Entities" || searchOptions.nextEntityType === undefined));
+    let entityTypesExist = searchOptions.entityTypeIds.length > 0;
     let defaultOptionsForPageRefresh = !searchOptions.nextEntityType && (searchOptions.entityTypeIds.length > 0 || cardView);
-    let selectingAllEntitiesOption = (searchOptions.nextEntityType === "All Entities" && !isColumnSelectorTouched && !searchOptions.entityTypeIds.length && !cardView && searchOptions.entityTypeIds.length > 0 && !entitySpecificPanel);
-    let selectingAllDataOption = (searchOptions.nextEntityType === "All Data" && !isColumnSelectorTouched && !searchOptions.entityTypeIds.length && cardView && !entitySpecificPanel);
+    let selectingAllEntitiesOption = (searchOptions.nextEntityType === "All Entities" && !isColumnSelectorTouched && !entitySpecificPanel);
+    let selectingAllDataOption = (searchOptions.nextEntityType === "All Data" && !isColumnSelectorTouched && !entitySpecificPanel);
     let selectingEntityType = (searchOptions.nextEntityType && !["All Entities", "All Data"].includes(searchOptions.nextEntityType) && searchOptions.entityTypeIds[0] === searchOptions.nextEntityType || entitySpecificPanel);
-    let notSelectingCardViewWhenNoEntities = !cardView && (!searchOptions.entityTypeIds.length && !searchOptions.entityTypeIds.length || !searchOptions.nextEntityType);
+    let notSelectingCardViewWhenNoEntities = !cardView && !searchOptions.entityTypeIds.length;
 
-    if (entityTypesExistOrNoEntityTypeIsSelected &&
+    if (entityTypesExist &&
       (
         defaultOptionsForPageRefresh ||
         selectingAllEntitiesOption ||
@@ -328,11 +327,14 @@ const Browse: React.FC<Props> = ({location}) => {
   }, []);
 
   useEffect(() => {
-    if (searchOptions.nextEntityType && searchOptions.nextEntityType !== "All Data") {
+      //This can be a toggle when nextEntityType is replaced with the All Data/All Entities toggle.
+    if (searchOptions.nextEntityType && searchOptions.nextEntityType === "All Entities") {
       setCardView(false);
+    } else if (searchOptions.nextEntityType && searchOptions.nextEntityType === "All Data"){
+      setCardView(true);
     }
     fetchUpdatedSearchResults();
-  }, [tableView, graphView, searchOptions, searchOptions.nextEntityType, user.error.type, hideDataHubArtifacts]);
+  }, [tableView, graphView, searchOptions.database, searchOptions.entityTypeIds, searchOptions.nextEntityType, searchOptions.query, searchOptions.selectedFacets, user.error.type, hideDataHubArtifacts]);
 
   useEffect(() => {
     let baseEntitiesSelected = searchOptions.entityTypeIds.length > 0;
