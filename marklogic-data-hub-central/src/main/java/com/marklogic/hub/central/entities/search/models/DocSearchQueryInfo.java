@@ -101,6 +101,10 @@ public class DocSearchQueryInfo {
         return hideHubArtifacts;
     }
 
+    public boolean isEmpty() {
+        return getSelectedFacets().isEmpty() && getRelatedDocument() == null;
+    }
+
     public void setHideHubArtifacts(boolean hideHubArtifacts) {
         this.hideHubArtifacts = hideHubArtifacts;
     }
