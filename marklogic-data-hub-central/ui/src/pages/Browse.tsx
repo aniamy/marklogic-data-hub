@@ -93,6 +93,12 @@ const Browse: React.FC<Props> = ({location}) => {
   const [isAllEntitiesSelected, setIsAllEntitiesSelected] = useState(true);
   const [parsedFacets, setParsedFacets] = React.useState<any[]>([]);
 
+
+  const isGraphView = () => {
+    const isGraph = searchOptions.nextEntityType !== "All Data" && graphView;
+    return isGraph;
+  };
+
   const setEntitySpecificFacets = (entity) => {
     const {name} = entity;
     let entityFacets: any[] = [];
@@ -183,11 +189,11 @@ const Browse: React.FC<Props> = ({location}) => {
         data: {
           query: {
             searchText,
-            entityTypeIds: cardView ? [] : searchOptions.entityTypeIds && searchOptions.entityTypeIds.length ? searchOptions.entityTypeIds : allEntities,
+            entityTypeIds: searchOptions.nextEntityType === "All Data" ? [] : allEntities,
             selectedFacets: searchOptions.selectedFacets,
-            hideHubArtifacts: cardView ? hideDataHubArtifacts : true
+            hideHubArtifacts: searchOptions.nextEntityType === "All Data" ? hideDataHubArtifacts : true
           },
-          propertiesToDisplay: searchOptions.selectedTableProperties,
+          propertiesToDisplay: searchOptions.nextEntityType === "All Data" ? [] : searchOptions.selectedTableProperties,
           start: searchOptions.start,
           pageLength: searchOptions.pageLength,
           sortOrder: searchOptions.sortOrder
@@ -201,7 +207,7 @@ const Browse: React.FC<Props> = ({location}) => {
       if (componentIsMounted.current && response.data) {
         if (response.data.entityPropertyDefinitions && graphView) {
           setData(response.data.results);
-        } else if (!graphView) {
+        } else if (!isGraphView()) {
           setData(response.data.results);
         }
         if (response.data.hasOwnProperty("entityPropertyDefinitions")) {
@@ -327,16 +333,16 @@ const Browse: React.FC<Props> = ({location}) => {
   useEffect(() => {
     //This can be a toggle when nextEntityType is replaced with the All Data/All Entities toggle.
     if (searchOptions.nextEntityType && searchOptions.nextEntityType === "All Entities") {
-      setCardView(false);
+      if (cardView) setCardView(false);
     } else if (searchOptions.nextEntityType && searchOptions.nextEntityType === "All Data") {
-      setCardView(true);
+      if (!cardView) setCardView(true);
     }
     fetchUpdatedSearchResults();
   }, [tableView, graphView, searchOptions.database, searchOptions.entityTypeIds, searchOptions.nextEntityType, searchOptions.query, searchOptions.selectedFacets, user.error.type, hideDataHubArtifacts]);
 
   useEffect(() => {
     let baseEntitiesSelected = searchOptions.entityTypeIds.length > 0;
-    if (graphView && baseEntitiesSelected) {
+    if (graphView && baseEntitiesSelected && searchOptions.nextEntityType !== "All Data") {
       getGraphSearchResult(searchOptions.entityTypeIds);
     }
     return () => {
@@ -649,7 +655,7 @@ const Browse: React.FC<Props> = ({location}) => {
               <div className={styles.searchBar} ref={searchBarRef} >
                 {showNoDefinitionAlertMessage ? <div aria-label="titleNoDefinition" className={styles.titleNoDefinition}>{ModelingMessages.titleNoDefinition}</div> :
                   <span className="d-flex justify-content-between">
-                    {!graphView &&
+                    {!isGraphView() &&
                       <div className={styles.searchSummaryGraphView}>
                         <SearchSummary
                           total={totalDocuments}
@@ -662,7 +668,7 @@ const Browse: React.FC<Props> = ({location}) => {
 
                     <div className={styles.spinViews}>
                       <div style={switchViewsGraphStyle()}>
-                        {graphView && <div className={styles.graphViewSearchSummary} aria-label={"graph-view-searchSummary"}>
+                        {isGraphView() && <div className={styles.graphViewSearchSummary} aria-label={"graph-view-searchSummary"}>
                           {numberOfResultsBanner}
                         </div>}
                         {isLoading && <div className={styles.spinnerContainer}><Spinner animation="border" data-testid="spinner" variant="primary" /></div>}
@@ -738,7 +744,7 @@ const Browse: React.FC<Props> = ({location}) => {
               </div>
             </div>
             {!showNoDefinitionAlertMessage &&
-              <div className={graphView ? styles.viewGraphContainer : styles.viewContainer} >
+              <div className={isGraphView() ? styles.viewGraphContainer : styles.viewContainer} >
                 <div>
                   {cardView ?
                     <RecordCardView
@@ -778,7 +784,7 @@ const Browse: React.FC<Props> = ({location}) => {
                 </div>
                 <br />
               </div>}
-            {!showNoDefinitionAlertMessage && !graphView &&
+            {!showNoDefinitionAlertMessage && !isGraphView() &&
               <div>
                 <SearchSummary
                   total={totalDocuments}

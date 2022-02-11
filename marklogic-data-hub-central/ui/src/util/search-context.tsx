@@ -331,7 +331,7 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
   };
 
   const clearFacet = (constraint: string, val: string) => {
-    let facets = searchOptions.selectedFacets;
+    let facets = {...searchOptions.selectedFacets};
     if (facets && facets[constraint]) {
       let valueKey = "";
       if (facets[constraint].dataType === "xs:string" || facets[constraint].dataType === "string") {
@@ -357,7 +357,7 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
       pageNumber: 1,
       pageLength: searchOptions.pageSize
     });
-    searchOptions.selectedFacets = {};
+    // searchOptions.selectedFacets = {};
     clearAllGreyFacets();
   };
 
@@ -377,7 +377,7 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
   */
 
   const clearDateFacet = () => {
-    let facets = searchOptions.selectedFacets;
+    let facets = {...searchOptions.selectedFacets};
     if (facets.hasOwnProperty("createdOnRange")) {
       delete facets.createdOnRange;
       setSearchOptions({
@@ -391,7 +391,7 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
   };
 
   const clearRangeFacet = (range: string) => {
-    let facets = searchOptions.selectedFacets;
+    let facets = {...searchOptions.selectedFacets};
     let constraints = Object.keys(facets);
     constraints.forEach(facet => {
       if (facets[facet].hasOwnProperty("rangeValues") && facet === range) {
@@ -427,7 +427,7 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
 
 
   const clearGreyDateFacet = () => {
-    let facets = greyedOptions.selectedFacets;
+    let facets = {...greyedOptions.selectedFacets};
     if (facets.hasOwnProperty("createdOnRange")) {
       delete facets.createdOnRange;
       setGreyedOptions({
@@ -441,7 +441,7 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
   };
 
   const clearGreyRangeFacet = (range: string) => {
-    let facets = greyedOptions.selectedFacets;
+    let facets = {...greyedOptions.selectedFacets};
     let constraints = Object.keys(facets);
     constraints.forEach(facet => {
       if (facets[facet].hasOwnProperty("rangeValues") && facet === range) {
@@ -459,8 +459,8 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
   };
 
   const clearConstraint = (constraint: string) => {
-    let selectedFacet = searchOptions.selectedFacets;
-    let greyFacets = greyedOptions.selectedFacets;
+    let selectedFacet = {...searchOptions.selectedFacets};
+    let greyFacets = {...greyedOptions.selectedFacets};
     if (Object.entries(greyedOptions.selectedFacets).length > 0 && greyedOptions.selectedFacets.hasOwnProperty(constraint)) {
       delete greyFacets[constraint];
       setGreyedOptions({...greyedOptions, selectedFacets: greyFacets});
@@ -473,7 +473,7 @@ const SearchProvider: React.FC<{children: any}> = ({children}) => {
 
 
   const clearGreyFacet = (constraint: string, val: string) => {
-    let facets = greyedOptions.selectedFacets;
+    let facets = {...greyedOptions.selectedFacets};
     let valueKey = "";
     if (facets[constraint].dataType === "xs:string" || facets[constraint].dataType === "string") {
       valueKey = "stringValues";
