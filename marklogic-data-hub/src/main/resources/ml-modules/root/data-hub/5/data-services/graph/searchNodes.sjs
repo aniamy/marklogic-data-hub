@@ -195,6 +195,11 @@ result.map(item => {
   const group = item.subjectIRI.toString().substring(0, item.subjectIRI.toString().length - subjectLabel.length - 1);
   let nodeOrigin = {};
   const subjectIri = docUriToSubjectIri[item.docURI][0];
+  const objectIRI = item.firstObjectIRI.toString();
+  const objectIRIArr = objectIRI.split("/");
+  const objectId = item.firstObjectIRI.toString();
+  const objectUri = item.firstDocURI.toString();
+
   const originId = subjectIri + "_" + item.docURI;
   if (!nodes[item.docURI] && (item.objectConcept.toString().length == 0)) {
     nodeOrigin.id = originId;
@@ -236,7 +241,7 @@ result.map(item => {
   //Checking for target nodes
   if (item.nodeCount && item.nodeCount == 1) {
     let edge = {};
-    const docUriToNodeKeys = getUrisByIRI(item.firstObjectIRI.toString());
+    const docUriToNodeKeys = getUrisByIRI(objectUri);
     //if the target exists in docUriToSubjectIri we check for multiple nodes
     if(docUriToNodeKeys && docUriToNodeKeys.length > 0) {
       docUriToNodeKeys.forEach(key => {
@@ -274,10 +279,6 @@ result.map(item => {
         }
       });
     } else { //if there isn't a docURI key create the node from item's info
-      const objectIRI = item.firstObjectIRI.toString();
-      const objectIRIArr = objectIRI.split("/");
-      const objectId = item.firstObjectIRI.toString();
-      const objectUri = item.firstDocURI.toString();
       const objectGroup = objectIRI.substring(0, objectIRI.length - objectIRIArr[objectIRIArr.length - 1].length - 1);
       let predicateArr = item.predicateIRI.toString().split("/");
       let edgeLabel = predicateArr[predicateArr.length - 1];
@@ -286,6 +287,7 @@ result.map(item => {
       edge.predicate = item.predicateIRI;
       edge.label = edgeLabel;
       edge.from = originId;
+      edge.to = objectId;
       edgesByID[edge.id] = edge;
       if (!nodes[objectUri]) {
         let objectNode = {};
@@ -324,18 +326,7 @@ result.map(item => {
     if (!nodes[objectId]) {
       let objectNode = {};
       objectNode.id = objectId;
-      let newLabelNode = "";
-      let configurationLabel = getLabelFromHubConfigByEntityType(objectIRIArr[objectIRIArr.length - 2]);
-      if(configurationLabel.toString().length > 0){
-        //getting the value of the configuration property
-        newLabelNode = getValueFromProperty(configurationLabel,objectUri,objectIRIArr[objectIRIArr.length - 2]);
-      }
-
-      if (newLabelNode.toString().length === 0) {
-        objectNode.label = objectIRIArr[objectIRIArr.length - 1];
-      }else{
-        objectNode.label = newLabelNode;
-      }
+      objectNode.label = objectIRIArr[objectIRIArr.length - 1];
       resultPropertiesOnHover = entityLib.getValuesPropertiesOnHover(item.docURI,objectIRIArr[objectIRIArr.length - 2],hubCentralConfig);
       objectNode.parentDocUri = item.docURI;
       objectNode.predicateIri = item.predicateIRI;
