@@ -606,17 +606,19 @@ const GraphVisExplore: React.FC<Props> = (props) => {
       parentDoc = clickedNode["parentDocUri"];
       nodeId = clickedNode["nodeId"];
     }
-    if (!parentDoc) {
-      parentDoc = payloadData.nodeInfo["parentDocUri"];
-    }
-    if (!nodeId) {
-      nodeId = payloadData.nodeInfo["nodeId"];
+    if (payloadData && payloadData.nodeInfo) {
+      if (!parentDoc) {
+        parentDoc = payloadData.nodeInfo["parentDocUri"];
+      }
+      if (!nodeId) {
+        nodeId = payloadData.nodeInfo["nodeId"];
+      }
     }
     let payload = {
       database: searchOptions.database,
       data: {
         parentIRI: parentDoc || nodeId,
-        "predicateFilter": clickedNode && clickedNode["predicateIri"] ? clickedNode["predicateIri"] : payloadData.nodeInfo["predicateIri"]
+        "predicateFilter": clickedNode && clickedNode["predicateIRI"] ? clickedNode["predicateIRI"] : payloadData.nodeInfo["predicateIRI"]
       }
     };
     try {
@@ -746,7 +748,7 @@ const GraphVisExplore: React.FC<Props> = (props) => {
     if (clickedNode) {
       parentIRI = clickedNode["docUri"] || clickedNode["nodeId"];
     }
-    if (!parentIRI) {
+    if (!parentIRI && payloadData && payloadData.nodeInfo) {
       parentIRI = payloadData.nodeInfo["docUri"] || payloadData.nodeInfo["nodeId"];
     }
     let payload = {
@@ -906,8 +908,7 @@ const GraphVisExplore: React.FC<Props> = (props) => {
   };
 
   const isLeafNode = () => {
-    const currentEntityTypeSelected = clickedNode["entityName"];
-    return clickedNode && !isGroupNode() && !searchOptions.entityTypeIds.includes(currentEntityTypeSelected);
+    return clickedNode && clickedNode["hasRelationships"];
   };
 
   const isClusterFocused = () => {
@@ -931,7 +932,7 @@ const GraphVisExplore: React.FC<Props> = (props) => {
             Open related {entityType} records in a table
           </div>
         }
-        {isLeafNode() &&
+        {isLeafNode() && !isExpandedLeaf() &&
           <div id="showRelated" key="2" className={styles.contextMenuItem}>
             Show related
           </div>
@@ -1081,7 +1082,7 @@ const GraphVisExplore: React.FC<Props> = (props) => {
       nodeInfo["parentNodeExpandId"] = parentNodeExpandId;
       nodeInfo["docUri"] = nodeObject && nodeObject["docUri"] ? nodeObject["docUri"] : "";
       nodeInfo["parentDocUri"] = nodeObject && nodeObject["parentDocUri"] ? nodeObject["parentDocUri"] : "";
-      nodeInfo["predicateIri"] = nodeObject && nodeObject["predicateIri"] ? nodeObject["predicateIri"] : nodeInfo["predicateIRI"];
+      nodeInfo["predicateIRI"] = nodeObject && nodeObject["predicateIRI"] ? nodeObject["predicateIRI"] : nodeInfo["predicateIRI"];
 
       //Reset ClickedNode upon double click
       setClickedNode({nodeId: undefined, isGroupNode: false});
