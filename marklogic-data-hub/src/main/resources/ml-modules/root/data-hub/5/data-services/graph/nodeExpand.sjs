@@ -120,7 +120,7 @@ if (isConcept) {
   let additionalNode = null, additionalEdge = null;
   result.map(item => {
     const objectIRI = item.firstObjectIRI.toString();
-    const fromId = item.subjectIRI + "_" + nodeToExpand;
+    const parentNodeId = item.subjectIRI + "_" + nodeToExpand;
     let nodeDocUri = item.docRelated ? item.docRelated : item.firstDocURI;
     let subjectArr = objectIRI.split("/");
     let objectId = subjectArr[subjectArr.length - 1];
@@ -163,11 +163,13 @@ if (isConcept) {
     let edgeLabel = predicateArr[predicateArr.length - 1];
 
     let edge = {};
-    edge.id = "edge-" + nodeToExpand + "-" + item.predicateIRI + "-" + objectIRI;
+    const toId = nodeId;
+    const fromId =  parentNodeId;
+    edge.id = "edge-" + fromId + "-" + item.predicateIRI + "-" + toId;
     edge.predicate = item.predicateIRI;
     edge.label = edgeLabel;
     edge.from = fromId;
-    edge.to = nodeId;
+    edge.to = toId;
     edges.push(edge);
 
     if(limit < totalEstimate && !additionalNode) {

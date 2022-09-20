@@ -150,29 +150,20 @@ function getEntityNodes(documentUri, predicateIRI, limit) {
   const subjectPlan = op.fromSPARQL(`
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      SELECT * WHERE {
-	      {
-		        SELECT ?subjectIRI ?docURI ?predicateIRI (MIN(?anyPredicateLabel) as ?predicateLabel) ?firstObjectIRI WHERE {
-			      {
-				        ?firstObjectIRI rdfs:isDefinedBy ?docURI.
-          		  ?subjectIRI ?predicateIRI ?firstObjectIRI;
-              	rdfs:isDefinedBy @parentDocURI.
-          		  OPTIONAL {
-            		    ?predicateIRI @labelIRI ?anyPredicateLabel.
-          		  }
-			      } UNION {
-				        ?firstObjectIRI rdfs:isDefinedBy ?docURI.
-          		  ?firstObjectIRI ?predicateIRI ?subjectIRI;
-              	rdfs:isDefinedBy @parentDocURI.
-          		  OPTIONAL {
-            		    ?predicateIRI @labelIRI ?anyPredicateLabel.
-          		  }
-			      }
-		        }
-		        GROUP BY ?subjectIRI ?docURI ?predicateIRI ?firstObjectIRI
-	      }
+      SELECT ?subjectIRI ?firstDocURI ?predicateIRI (MIN(?anyPredicateLabel) as ?predicateLabel) ?firstObjectIRI WHERE {
+        ?subjectIRI rdfs:isDefinedBy @parentDocURI.
+        {
+            ?subjectIRI ?predicateIRI ?firstObjectIRI.
+        } UNION {
+            ?firstObjectIRI ?predicateIRI ?subjectIRI.
+        }
+        ?firstObjectIRI rdfs:isDefinedBy ?firstDocURI.
+        OPTIONAL {
+            ?predicateIRI @labelIRI ?anyPredicateLabel.
+        }
       }
-  `).where(op.eq(op.col('predicateIRI'), predicateIRI)).limit(limit);
+      GROUP BY ?subjectIRI ?docURI ?predicateIRI ?firstObjectIRI
+`).where(op.eq(op.col('predicateIRI'), predicateIRI)).limit(limit);
   return subjectPlan.result(null, { parentDocURI: documentUri, labelIRI: getOrderedLabelPredicates()}).toArray();
 
 }
