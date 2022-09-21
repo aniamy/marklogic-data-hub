@@ -27,19 +27,6 @@ const hubCentralConfig = cts.doc("/config/hubCentral.json")
 var nodeInfo;
 var limit;
 
-function handleByConceptObjectAndParentEntity(parentEntityName, objectConceptIRI) {
-  let EntityTypeIRIsWithoutParent = [];
-  fn.collection(entityLib.getModelCollection()).toArray().forEach(model => {
-    model = model.toObject();
-    const modelName = model.info.title;
-    if (modelName != parentEntityName) {
-      const entityNameIri = entityLib.getEntityTypeId(model, modelName);
-      EntityTypeIRIsWithoutParent.push(sem.iri(entityNameIri));
-    }
-  });
-  return graphUtils.getEntityNodesExpandingConcept(EntityTypeIRIsWithoutParent, objectConceptIRI, limit);
-}
-
 if(nodeInfo == null) {
   httpUtils.throwBadRequest("Request cannot be empty");
 }
@@ -54,7 +41,7 @@ if(queryObj.isConcept != null && queryObj.isConcept === true){
 }
 let hashmapPredicate = new Map();
 
-if (nodeToExpand == null) {
+if (nodeToExpand == null && !(queryObj.isConcept && queryObj.objectConcept)) {
   httpUtils.throwBadRequest("Missing parentIRI. Required to expand a node.")
 }
 
@@ -75,10 +62,8 @@ if(!isConcept) {
   }
 } else {
    //is concept
-  const entityIRIArr = nodeToExpand.split("/");
-  const parentEntityType = entityIRIArr[entityIRIArr.length - 2];
-  let objectConcept = sem.iri(queryObj.objectConcept);
-  result = handleByConceptObjectAndParentEntity(parentEntityType,objectConcept);
+  let objectConceptIRI = sem.iri(queryObj.objectConcept);
+  result = graphUtils.getEntityNodesExpandingConcept(objectConceptIRI, limit);
 }
 let nodes = [];
 let edges = [];
@@ -90,9 +75,10 @@ if (isConcept) {
     const objectId = subjectArr[subjectArr.length - 1];
     const group = objectIRI.substring(0, objectIRI.length - objectId.length - 1);
     let entityType =   subjectArr[subjectArr.length - 2];
-    let newLabel = getCustomLabel(entityType,  item.docURI);
+    const nodeIsConcept = !fn.string(item.docURI);
+    let newLabel = !nodeIsConcept ? getCustomLabel(entityType,  item.docURI) : "";
     let nodeExpanded = {};
-    nodeExpanded.id = objectIRI + "_" + item.docURI;
+    nodeExpanded.id = !nodeIsConcept ? objectIRI + "_" + item.docURI: objectIRI;
     nodeExpanded.docURI = item.docURI;
     if (newLabel.toString().length === 0) {
       nodeExpanded.label = objectId;
@@ -101,18 +87,18 @@ if (isConcept) {
     }
     nodeExpanded.group = group;
     nodeExpanded.additionalProperties = null;
-    nodeExpanded.isConcept = false;
-    nodeExpanded.hasRelationships = false;
+    nodeExpanded.isConcept = nodeIsConcept;
+    nodeExpanded.hasRelationships = graphUtils.relatedObjHasRelationships(objectIRI, hashmapPredicate);
     nodeExpanded.count = 1;
     nodes.push(nodeExpanded);
-    let edgeLabel = item.predicateIRI;
-
+    let edgeLabel = String(item.predicateIRI);
+    edgeLabel = edgeLabel.substring(Math.max(edgeLabel.lastIndexOf("/"),edgeLabel.lastIndexOf("#")) + 1);
     let edge = {};
-    edge.id = "edge-" + item.subjectIRI + "-" + item.predicateIRI + "-" + item.objectConcept;
+    edge.id = "edge-" + nodeExpanded.id + "-" + item.predicateIRI + "-" + queryObj.objectConcept;
     edge.predicate = group+"/"+ item.predicateIRI;
     edge.label = edgeLabel;
-    edge.from = item.subjectIRI;
-    edge.to = item.objectConcept;
+    edge.from = queryObj.objectConcept;
+    edge.to = nodeExpanded.id;
     edges.push(edge);
   });
   totalEstimate = nodes.length;

@@ -23,10 +23,11 @@ var semanticConceptIRI;
 const finalConceptIRI = sem.iri(semanticConceptIRI);
 
 const conceptInfo = graphUtils.getRelatedEntityInstancesCount(finalConceptIRI);
-
+const description = graphUtils.describeIRI(finalConceptIRI);
 const semanticConceptInfo = {
   "semanticConceptIRI": semanticConceptIRI,
-  "data": conceptInfo
+  "data": conceptInfo,
+  description
 };
 
 semanticConceptInfo

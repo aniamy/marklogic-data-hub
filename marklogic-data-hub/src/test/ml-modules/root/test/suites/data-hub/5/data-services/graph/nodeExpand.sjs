@@ -71,32 +71,16 @@ assertions.concat([
 
 const expandConceptQuery = {
   "isConcept":true,
-  "parentIRI": "http://example.org/Office-0.0.1/Office/1",
   "objectConcept": "http://www.example.com/Category/Sneakers"
 };
 const resultConceptExpand = nodeExpandWithLimit4(expandConceptQuery);
 
 assertions.concat([
-  test.assertEqual(1, resultConceptExpand.total, xdmp.toJsonString(resultConceptExpand)),
-  test.assertEqual(1, resultConceptExpand.nodes.length, xdmp.toJsonString(resultConceptExpand)),
-  test.assertEqual(1, resultConceptExpand.edges.length),
-  test.assertEqual("ProductName60", resultConceptExpand.nodes[0].label)
-
-]);
-
-const expandConceptQueryProduct = {
-  "isConcept":true,
-  "parentIRI": "http://example.org/Product-1.0.0/Product/60",
-  "objectConcept": "http://www.example.com/Category/Sneakers"
-};
-const resultConceptQueryProduct = nodeExpandWithLimit4(expandConceptQueryProduct);
-
-assertions.concat([
-  test.assertEqual(2, resultConceptQueryProduct.total, xdmp.toJsonString(resultConceptQueryProduct)),
-  test.assertEqual(2, resultConceptQueryProduct.nodes.length, xdmp.toJsonString(resultConceptQueryProduct)),
-  test.assertEqual(2, resultConceptQueryProduct.edges.length),
-  test.assertEqual("office name", resultConceptQueryProduct.nodes[0].label)
-
+  test.assertEqual(3, resultConceptExpand.total, xdmp.toJsonString(resultConceptExpand)),
+  test.assertEqual(3, resultConceptExpand.nodes.length, xdmp.toJsonString(resultConceptExpand)),
+  test.assertEqual(3, resultConceptExpand.edges.length),
+  test.assertTrue(resultConceptExpand.nodes.some(node => "office name" === fn.string(node.label))),
+  test.assertTrue(resultConceptExpand.nodes.some(node => "ProductName60" === fn.string(node.label)))
 ]);
 
 assertions;

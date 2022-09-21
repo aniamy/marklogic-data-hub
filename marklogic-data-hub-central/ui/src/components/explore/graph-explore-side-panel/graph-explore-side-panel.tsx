@@ -263,8 +263,7 @@ const GraphExploreSidePanel: React.FC<Props> = (props) => {
             id="recordTabInSidePanel"
             title={RECORD_TITLE}/>
         </Tabs>
-        {displayPanelContent()}</> :
-          conceptInstanceInfo
+        {displayPanelContent()}</> : <>{conceptInstanceInfo}{semanticConceptInfo["description"] && <pre data-testid="graphView-json-container">{jsonFormatter(semanticConceptInfo["description"])}</pre>}</>
       }
     </div>
   );
