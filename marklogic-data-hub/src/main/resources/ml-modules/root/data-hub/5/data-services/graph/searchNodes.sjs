@@ -160,7 +160,7 @@ for (const item of result) {
   const subjectUri = item.docURI.toString();
   docUriToSubjectIri[subjectUri] = docUriToSubjectIri[subjectUri] || [];
   docUriToSubjectIri[subjectUri].push(subjectIri);
-  if (item.nodeCount == 1 && !item.objectConcept) {
+  if (item.nodeCount == 1 && item.firstDocURI) {
     const objectUri = item.firstDocURI.toString();
     const objectIri = item.firstObjectIRI.toString();
     docUriToSubjectIri[objectUri] = docUriToSubjectIri[objectUri] || [];
@@ -189,13 +189,13 @@ result.map(item => {
   }
   const group = item.subjectIRI.toString().substring(0, item.subjectIRI.toString().length - subjectLabel.length - 1);
   let nodeOrigin = {};
-  const subjectIri = docUriToSubjectIri[item.docURI][0];
+  const subjectIri = docUriToSubjectIri[item.docURI][0] || item.subjectIRI.toString();
   const objectIRI = item.firstObjectIRI.toString();
   const objectIRIArr = objectIRI.split("/");
   const objectUri = item.firstDocURI.toString();
-  const objectId = objectIRI + "_" + objectUri;
+  const objectId = objectUri || objectIRI;
 
-  const originId = subjectIri + "_" + item.docURI;
+  const originId = item.docURI || subjectIri;
   if (!nodes[item.docURI] && (item.objectConcept.toString().length == 0)) {
     nodeOrigin.id = originId;
     nodeOrigin.docUri = item.docURI;
@@ -236,21 +236,22 @@ result.map(item => {
   //Checking for target nodes
   if (item.nodeCount && item.nodeCount == 1) {
     let edge = {};
-    const docUriToNodeKeys = getUrisByIRI(objectUri);
+    const docUriToNodeKeys = getUrisByIRI(objectIRI);
     //if the target exists in docUriToSubjectIri we check for multiple nodes
     if(docUriToNodeKeys && docUriToNodeKeys.length > 0) {
       docUriToNodeKeys.forEach(key => {
         let objectIRI = docUriToSubjectIri[key][0];
-        const objectId = objectIRI + "_" + key;
+        const objectId = key;
         edge = {};
-        edge.id = "edge-" + originId + "-" + objectId;
+        const sortedIds = [originId, objectId].sort();
+        edge.id = "edge-" + sortedIds[0] + "-" + sortedIds[1];
         if (!edgesByID[edge.id]) {
           let predicateArr = item.predicateIRI.toString().split("/");
           let edgeLabel = predicateArr[predicateArr.length - 1];
           edge.predicate = item.predicateIRI;
           edge.label = edgeLabel;
-          edge.from = originId;
-          edge.to = objectId;
+          edge.from = sortedIds[0];
+          edge.to = sortedIds[1];
           edgesByID[edge.id] = edge;
         }
         if (!nodes[key]) {
@@ -277,13 +278,16 @@ result.map(item => {
       const objectGroup = objectIRI.substring(0, objectIRI.length - objectIRIArr[objectIRIArr.length - 1].length - 1);
       let predicateArr = item.predicateIRI.toString().split("/");
       let edgeLabel = predicateArr[predicateArr.length - 1];
+      const sortedIds = [originId, objectIRI].sort();
       edge = {};
-      edge.id = "edge-" + item.subjectIRI + "-" + item.predicateIRI + "-" + objectIRI;
+      edge.id = "edge-" + sortedIds[0] + "-" + item.predicateIRI + "-" + sortedIds[1];
       edge.predicate = item.predicateIRI;
       edge.label = edgeLabel;
-      edge.from = originId;
-      edge.to = objectId;
-      edgesByID[edge.id] = edge;
+      edge.from = sortedIds[0];
+      edge.to = sortedIds[1];
+      if (!edgesByID[edge.id]) {
+        edgesByID[edge.id] = edge;
+      }
       if (!nodes[objectId]) {
         let objectNode = {};
         objectNode.id = objectId;
@@ -339,34 +343,35 @@ result.map(item => {
   } else if (item.predicateIRI !== undefined && item.predicateIRI.toString().length > 0) {
     let predicateArr = item.predicateIRI.toString().split("/");
     let edgeLabel = predicateArr[predicateArr.length - 1];
-    const subjectId = subjectIri + "_" + item.docURI;
+    const subjectId = item.docURI || subjectIri;
     const docUriToNodeKeys = getUrisByIRI(item.objectIRI.toString());
 
     if(docUriToNodeKeys && docUriToNodeKeys.length > 0) {
       docUriToNodeKeys.forEach(key => {
-        const iri = docUriToSubjectIri[key][0];
-        const objectId = iri + "_" + key;
-        const edgeId = "edge-" + subjectId + "-" + item.predicateIRI + "-" + objectId;
+        const objectId = key;
+        const sortedIds = [subjectId, objectId].sort();
+        const edgeId = "edge-" + sortedIds[0] + "-" + item.predicateIRI + "-" + sortedIds[1];
         if (!edgesByID[edgeId]) {
           edgesByID[edgeId] = {
             id: edgeId,
             predicate: item.predicateIRI,
             label: edgeLabel,
-            from: subjectId,
-            to: objectId
+            from: sortedIds[0],
+            to: sortedIds[1]
           };
         }
       });
     } else { //target is a concept node
       const objectId = item.objectIRI.toString()
-      const edgeId = "edge-" + subjectId + "-" + item.predicateIRI + "-" + objectId;
+      const sortedIds = [subjectId, objectId].sort();
+      const edgeId = "edge-" + sortedIds[0] + "-" + item.predicateIRI + "-" + sortedIds[1];
       if (!edgesByID[edgeId]) {
         edgesByID[edgeId] = {
           id: edgeId,
           predicate: item.predicateIRI,
           label: edgeLabel,
-          from: subjectId,
-          to: objectId
+          from: sortedIds[0],
+          to: sortedIds[1]
         };
       }
     }

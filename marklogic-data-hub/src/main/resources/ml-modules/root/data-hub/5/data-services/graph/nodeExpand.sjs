@@ -67,6 +67,7 @@ if(!isConcept) {
 }
 let nodes = [];
 let edges = [];
+const edgesById = {};
 
 if (isConcept) {
   result.map(item => {
@@ -78,7 +79,7 @@ if (isConcept) {
     const nodeIsConcept = !fn.string(item.docURI);
     let newLabel = !nodeIsConcept ? getCustomLabel(entityType,  item.docURI) : "";
     let nodeExpanded = {};
-    nodeExpanded.id = !nodeIsConcept ? objectIRI + "_" + item.docURI: objectIRI;
+    nodeExpanded.id = !nodeIsConcept ? item.docURI: objectIRI;
     nodeExpanded.docURI = item.docURI;
     if (newLabel.toString().length === 0) {
       nodeExpanded.label = objectId;
@@ -94,23 +95,27 @@ if (isConcept) {
     let edgeLabel = String(item.predicateIRI);
     edgeLabel = edgeLabel.substring(Math.max(edgeLabel.lastIndexOf("/"),edgeLabel.lastIndexOf("#")) + 1);
     let edge = {};
-    edge.id = "edge-" + nodeExpanded.id + "-" + item.predicateIRI + "-" + queryObj.objectConcept;
-    edge.predicate = group+"/"+ item.predicateIRI;
-    edge.label = edgeLabel;
-    edge.from = queryObj.objectConcept;
-    edge.to = nodeExpanded.id;
-    edges.push(edge);
+    const sortedIds = [nodeExpanded.id, queryObj.objectConcept].sort();
+    edge.id = "edge-" + sortedIds[0] + "-" + item.predicateIRI + "-" + sortedIds[1];
+    if (!edgesById[edge.id]) {
+      edgesById[edge.id] = edge;
+      edge.predicate = group + "/" + item.predicateIRI;
+      edge.label = edgeLabel;
+      edge.from = sortedIds[0];
+      edge.to = sortedIds[1];
+      edges.push(edge);
+    }
   });
   totalEstimate = nodes.length;
 } else {
   let additionalNode = null, additionalEdge = null;
   result.map(item => {
     const objectIRI = item.firstObjectIRI.toString();
-    const parentNodeId = item.subjectIRI + "_" + nodeToExpand;
+    const parentNodeId = nodeToExpand;
     let nodeDocUri = item.docRelated ? item.docRelated : item.firstDocURI;
     let subjectArr = objectIRI.split("/");
     let objectId = subjectArr[subjectArr.length - 1];
-    let nodeId = objectIRI + "_" + nodeDocUri;
+    let nodeId = nodeDocUri || objectIRI;
     let nodeLabel = objectId;
     let nodeCount = 1;
     let entityType =   subjectArr[subjectArr.length - 2];
@@ -149,15 +154,18 @@ if (isConcept) {
     let edgeLabel = predicateArr[predicateArr.length - 1];
 
     let edge = {};
-    const toId = nodeId;
-    const fromId =  parentNodeId;
+    const sortedIds = [nodeId, parentNodeId].sort();
+    const fromId =  sortedIds[0];
+    const toId = sortedIds[1];
     edge.id = "edge-" + fromId + "-" + item.predicateIRI + "-" + toId;
-    edge.predicate = item.predicateIRI;
-    edge.label = edgeLabel;
-    edge.from = fromId;
-    edge.to = toId;
-    edges.push(edge);
-
+    if (!edgesById[edge.id]) {
+      edgesById[edge.id] = edge;
+      edge.predicate = item.predicateIRI;
+      edge.label = edgeLabel;
+      edge.from = fromId;
+      edge.to = toId;
+      edges.push(edge);
+    }
     if(limit < totalEstimate && !additionalNode) {
       const groupParts = group.split("/");
       const entityIdLabel = groupParts[groupParts.length - 1];
