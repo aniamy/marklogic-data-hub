@@ -244,7 +244,7 @@ result.map(item => {
         const objectId = key;
         edge = {};
         const sortedIds = [originId, objectId].sort();
-        edge.id = "edge-" + sortedIds[0] + "-" + sortedIds[1];
+        edge.id = "edge-" + sortedIds[0] + "-" + item.predicateIRI + "-" + sortedIds[1];
         if (!edgesByID[edge.id]) {
           let predicateArr = item.predicateIRI.toString().split("/");
           let edgeLabel = predicateArr[predicateArr.length - 1];
