@@ -49,7 +49,12 @@ function getOrderedLabelPredicates() {
 }
 
 function getEntityNodesWithRelated(entityTypeIRIs, relatedEntityTypeIRIs, predicateConceptList, entitiesDifferentFromBaseAndRelated, conceptFacetList, ctsQueryCustom, limit) {
-  let collectionQuery = cts.query({ collectionQuery: { uris: getAllEntityIds()}});
+  const allEntityIds = getAllEntityIds();
+  let entitiesArchived = [];
+  allEntityIds.forEach( type => {
+    entitiesArchived.push("sm-" + type + "-archived");
+  })
+  let collectionQuery = cts.andNotQuery(cts.collectionQuery(allEntityIds), cts.collectionQuery(entitiesArchived));
   let subjectPlan = op.fromSPARQL(`PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                  SELECT ?subjectIRI ?subjectLabel ?docURI WHERE {
@@ -98,7 +103,7 @@ function getEntityNodesWithRelated(entityTypeIRIs, relatedEntityTypeIRIs, predic
                 }
               }
               GROUP BY ?subjectIRI ?docURI ?predicateIRI ?firstObjectIRI
-            `);
+            `).where(collectionQuery);
     fullPlan = fullPlan.union(subjectPlan.joinLeftOuter(otherEntityIRIs, joinOn).limit(limit));
   }
   // Can't run concept specific queries before ML 10.0-9 due to BugTrack https://bugtrack.marklogic.com/57077

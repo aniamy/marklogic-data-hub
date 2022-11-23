@@ -117,6 +117,12 @@ if(queryObj.searchText !== undefined && queryObj.searchText.toString().length > 
   }
 }
 
+let entitiesArchived = [];
+queryObj.entityTypeIds.forEach( type => {
+  entitiesArchived.push("sm-" + type + "-archived");
+})
+let ctsNotQuery = cts.collectionQuery(entitiesArchived);
+
 let conceptFacetList = [];
 if(queryObj.conceptsFilterTypeIds != null){
   queryObj.conceptsFilterTypeIds.map(item => {
@@ -124,7 +130,8 @@ if(queryObj.conceptsFilterTypeIds != null){
   })
 }
 
-const result = graphUtils.getEntityNodesWithRelated(entityTypeIRIs, relatedEntityTypeIRIs, predicateConceptList, entitiesDifferentsFromBaseAndRelated, conceptFacetList, ctsQuery, pageLength);
+let customCtsQuery = cts.andNotQuery(ctsQuery, ctsNotQuery);
+const result = graphUtils.getEntityNodesWithRelated(entityTypeIRIs, relatedEntityTypeIRIs, predicateConceptList, entitiesDifferentsFromBaseAndRelated, conceptFacetList, customCtsQuery, pageLength);
 //get total from base entities
 let resultBaseCounting = graphUtils.getEntityTypeIRIsCounting(entityTypeIRIs, ctsQuery);
 let totalCount = fn.head(resultBaseCounting).total;
