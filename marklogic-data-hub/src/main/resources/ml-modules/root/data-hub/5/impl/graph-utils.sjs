@@ -67,7 +67,7 @@ function getEntityNodesWithRelated(entityTypeIRIs, relatedEntityTypeIRIs, predic
   if (ctsQueryCustom instanceof cts.query) {
     subjectPlan = subjectPlan.where(ctsQueryCustom);
   }
-  const firstLevelConnectionsPlan = op.fromSPARQL(`
+  let firstLevelConnectionsPlan = op.fromSPARQL(`
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       SELECT ?subjectIRI ?predicateIRI (MIN(?anyPredicateLabel) AS ?predicateLabel) (MIN(?objectIRI) AS ?firstObjectIRI) (MIN(?docURI) AS ?firstDocURI) (COUNT(DISTINCT(?objectIRI)) AS ?nodeCount) WHERE {
@@ -83,7 +83,10 @@ function getEntityNodesWithRelated(entityTypeIRIs, relatedEntityTypeIRIs, predic
           }
       }
       GROUP BY ?subjectIRI ?predicateIRI
-  `).where(collectionQuery);
+  `);
+  if (collectionQuery instanceof cts.query) {
+    firstLevelConnectionsPlan = firstLevelConnectionsPlan.where(collectionQuery);
+  }
   let joinOn = op.on(op.col("subjectIRI"),op.col("subjectIRI"));
   let joinOnObjectIri = op.on(op.col("firstObjectIRI"),op.col("firstObjectIRI"));
   let fullPlan = subjectPlan.joinLeftOuter(firstLevelConnectionsPlan, joinOn).limit(limit);
