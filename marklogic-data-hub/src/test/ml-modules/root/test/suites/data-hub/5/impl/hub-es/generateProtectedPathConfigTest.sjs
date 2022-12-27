@@ -1,5 +1,5 @@
 const test = require("/test/test-helper.xqy");
-const hubEs = require('/data-hub/5/impl/hub-es.sjs');
+import hubEs from "/data-hub/5/impl/hub-es.mjs";
 
 function multipleProtectedPropertiesNoNamespace() {
   const result = hubEs.generateProtectedPathConfig([

@@ -13,8 +13,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-import perf from "/data-hub/4/impl/perflog-lib.xqy";
-import debug from "/data-hub/4/impl/debug-lib.xqy";
+var perf = require("/data-hub/4/impl/perflog-lib.xqy");
+var debug = require("/data-hub/4/impl/debug-lib.xqy");
 
 export function transform(context, params, content) {
   debug.dumpEnv();

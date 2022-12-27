@@ -1,8 +1,8 @@
 declareUpdate();
 
-const config = require("/com.marklogic.hub/config.sjs");
-const entityLib = require("/data-hub/5/impl/entity-lib.sjs");
-const hubUtils = require("/data-hub/5/impl/hub-utils.sjs");
+import config from "/com.marklogic.hub/config.mjs";
+import entityLib from "/data-hub/5/impl/entity-lib.mjs";
+import hubUtils from "/data-hub/5/impl/hub-utils.sjs";
 const test = require("/test/test-helper.xqy");
 
 const hubCentralConfig = {

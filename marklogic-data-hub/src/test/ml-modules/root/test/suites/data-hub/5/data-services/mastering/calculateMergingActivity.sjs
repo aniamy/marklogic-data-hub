@@ -2,7 +2,7 @@
 const hubTest = require("/test/data-hub-test-helper.sjs");
 const test = require("/test/test-helper.xqy");
 
-const cma = require("/data-hub/5/data-services/mastering/calculateMergingActivityLib.sjs");
+import cma from "/data-hub/5/data-services/mastering/calculateMatchingActivityLib.mjs";
 const assertions = [];
 hubTest.runWithRolesAndPrivileges(['data-hub-match-merge-reader'], [], function() {
     const results = cma.calculateMergingActivity({ targetEntityType: 'Customer' });

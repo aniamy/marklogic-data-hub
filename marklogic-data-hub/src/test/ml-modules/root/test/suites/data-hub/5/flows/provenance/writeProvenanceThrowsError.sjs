@@ -1,7 +1,7 @@
 const test = require("/test/test-helper.xqy");
 const hubTest = require("/test/data-hub-test-helper.xqy");
-const flowProvenance = require("/data-hub/5/flow/flowProvenance.sjs");
-const StepExecutionContext = require("/data-hub/5/flow/stepExecutionContext.sjs");
+import flowProvenance from "/data-hub/5/flow/flowProvenance.mjs";
+import StepExecutionContext from "/data-hub/5/flow/stepExecutionContext.mjs";
 
 const assertions = [];
 const flowName = "doesntMatter";

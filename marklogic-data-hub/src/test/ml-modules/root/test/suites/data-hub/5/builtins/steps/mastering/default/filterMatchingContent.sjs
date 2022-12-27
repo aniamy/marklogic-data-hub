@@ -1,5 +1,5 @@
-const matching = require("/data-hub/5/builtins/steps/mastering/default/matching.sjs");
-const lib = require("/data-hub/5/builtins/steps/mastering/default/lib.sjs");
+import matching from "/data-hub/5/builtins/steps/mastering/default/matching.mjs";
+import lib from "/data-hub/5/builtins/steps/mastering/default/lib.mjs";
 const test = require("/test/test-helper.xqy");
 
 

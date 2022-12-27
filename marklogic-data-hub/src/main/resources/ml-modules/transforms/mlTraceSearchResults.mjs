@@ -13,7 +13,7 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 */
-import trace from "/data-hub/4/impl/trace-lib.xqy";
+var trace = require("/data-hub/4/impl/trace-lib.xqy");
 
 export function transform(context, params, content) {
   var response = content.toObject();

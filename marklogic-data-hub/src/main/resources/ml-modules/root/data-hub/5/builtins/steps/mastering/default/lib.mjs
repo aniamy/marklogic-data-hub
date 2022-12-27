@@ -15,9 +15,9 @@
  */
 import config from "/com.marklogic.hub/config.mjs";
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
-import mergeImpl from "/com.marklogic.smart-mastering/survivorship/merging/base.xqy";
-import masteringCollections from "/com.marklogic.smart-mastering/impl/collections.xqy";
-import masteringConsts from "/com.marklogic.smart-mastering/constants.xqy";
+const mergeImpl = require("/com.marklogic.smart-mastering/survivorship/merging/base.xqy");
+const masteringCollections = require("/com.marklogic.smart-mastering/impl/collections.xqy");
+const masteringConsts = require("/com.marklogic.smart-mastering/constants.xqy");
 const requiredOptionProperties = ['matchOptions', 'mergeOptions'];
 const emptySequence = Sequence.from([]);
 
@@ -283,7 +283,7 @@ function getContentInCollectionCount(outputContentArray, collection) {
   }).length;
 }
 
-export {
+export default {
   matchDetailsByMergedQuery,
   expectedCollectionEvents,
   checkOptions,

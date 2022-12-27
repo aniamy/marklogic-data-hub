@@ -1,20 +1,20 @@
 function invokeSetService(artifactType, artifactName, artifact) {
     return fn.head(xdmp.invoke(
-        "/data-hub/5/data-services/artifacts/setArtifact.sjs",
+        "/data-hub/5/data-services/artifacts/setArtifact.mjs",
         {artifactType, artifactName, artifact: xdmp.toJSON(artifact)}
     ));
 }
 
 function invokeGetAllService(artifactType) {
     return fn.head(xdmp.invoke(
-        "/data-hub/5/data-services/artifacts/getList.sjs",
+        "/data-hub/5/data-services/artifacts/getList.mjs",
         {artifactType}
     ));
 }
 
 function invokeGetArtifactsWithProjectPaths() {
     return fn.head(xdmp.invoke(
-        "/data-hub/5/data-services/artifacts/getArtifactsWithProjectPaths.sjs",
+        "/data-hub/5/data-services/artifacts/getArtifactsWithProjectPaths.mjs",
         {}
     ));
 }

@@ -19,7 +19,7 @@
 // No privilege required: No special privilege is needed for this endpoint
 
 import httpUtils from "/data-hub/5/impl/http-utils.mjs";
-import sem from "/MarkLogic/semantics.xqy";
+const sem = require("/MarkLogic/semantics.xqy");
 import graphUtils from "/data-hub/5/impl/graph-utils.mjs";
 
 const nodeInfo = external.nodeInfo;

@@ -1,5 +1,5 @@
 const test = require("/test/test-helper.xqy");
-const collectorLib = require("/data-hub/5/endpoints/collectorLib.sjs");
+import collectorLib from "/data-hub/5/endpoints/collectorLib.mjs";
 
 let assertions = [];
 

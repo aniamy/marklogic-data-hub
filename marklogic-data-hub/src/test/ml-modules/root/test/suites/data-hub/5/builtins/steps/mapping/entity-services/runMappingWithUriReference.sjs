@@ -1,7 +1,6 @@
-const esMappingLib = require("/data-hub/5/builtins/steps/mapping/entity-services/lib.sjs");
+import esMappingLib from "/data-hub/5/builtins/steps/mapping/entity-services/lib.mjs";
 const hubTest = require("/test/data-hub-test-helper.xqy");
 const lib = require("lib/lib.sjs");
-const mappingLib = require("/data-hub/5/builtins/steps/mapping/entity-services/lib.sjs");
 const test = require("/test/test-helper.xqy");
 
 const contentUri = "/content/person2.json";

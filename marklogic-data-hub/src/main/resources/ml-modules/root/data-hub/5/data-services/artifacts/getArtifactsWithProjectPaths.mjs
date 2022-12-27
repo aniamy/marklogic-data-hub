@@ -19,7 +19,7 @@ xdmp.securityAssert("http://marklogic.com/data-hub/privileges/download-project-f
 
 import config from "/com.marklogic.hub/config.mjs";
 import consts from "/data-hub/5/impl/consts.mjs";
-import hent from "/data-hub/5/impl/hub-entities.xqy";
+const hent = require("/data-hub/5/impl/hub-entities.xqy");
 import hubEs from "/data-hub/5/impl/hub-es.mjs";
 
 const artifactsWithProjectPaths = [];

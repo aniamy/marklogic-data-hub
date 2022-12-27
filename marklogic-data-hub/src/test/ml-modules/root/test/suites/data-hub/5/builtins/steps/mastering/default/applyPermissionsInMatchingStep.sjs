@@ -1,4 +1,4 @@
-const matching = require("/data-hub/5/builtins/steps/mastering/default/matching.sjs");
+import matching from "/data-hub/5/builtins/steps/mastering/default/matching.mjs";
 const test = require("/test/test-helper.xqy");
 
 let result = matching.buildResult(

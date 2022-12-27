@@ -15,12 +15,12 @@
  */
 'use strict';
 
-import Artifacts from "/data-hub/5/artifacts/core.mjs";
-import config from "/com.marklogic.hub/config.mjs";
-import DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
-import matcher from '/com.marklogic.smart-mastering/matcher.xqy';
-import httpUtils from "/data-hub/5/impl/http-utils.mjs";
-import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
+import * as Artifacts from "/data-hub/5/artifacts/core.mjs";
+import * as config from "/com.marklogic.hub/config.mjs";
+import * as DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
+const matcher = require('/com.marklogic.smart-mastering/matcher.xqy');
+import * as httpUtils from "/data-hub/5/impl/http-utils.mjs";
+import * as hubUtils from "/data-hub/5/impl/hub-utils.mjs";
 
 export function get(context, params) {
   return post(context, params, null);

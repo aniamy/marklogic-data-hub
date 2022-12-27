@@ -17,7 +17,7 @@
 'use strict';
 
 // No privilege required: No special privilege is needed for this endpoint
-import sem from "/MarkLogic/semantics.xqy";
+const sem = require("/MarkLogic/semantics.xqy");
 import search from "/MarkLogic/appservices/search/search";
 import entityLib from "/data-hub/5/impl/entity-lib.mjs";
 import graphUtils from "/data-hub/5/impl/graph-utils.mjs";

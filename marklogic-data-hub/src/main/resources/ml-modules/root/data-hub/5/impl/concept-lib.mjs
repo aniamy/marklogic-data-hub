@@ -21,7 +21,7 @@
 
 import config from "/com.marklogic.hub/config.mjs" ;
 import consts from "/data-hub/5/impl/consts.mjs" ;
-import hent from "/data-hub/5/impl/hub-entities.xqy";
+const hent = require("/data-hub/5/impl/hub-entities.xqy");
 import httpUtils from "/data-hub/5/impl/http-utils.mjs" ;
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs" ;
 import entityLib from "/data-hub/5/impl/entity-lib.mjs" ;
@@ -353,7 +353,7 @@ function getModelName(model) {
   return null;
 }
 
-export {
+export default {
   findDraftModelByConceptName,
   findModelByConceptName,
   getDraftConceptCollection,

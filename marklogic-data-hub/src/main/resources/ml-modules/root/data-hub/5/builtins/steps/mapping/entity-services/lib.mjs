@@ -6,8 +6,8 @@ import entityLib from "/data-hub/5/impl/entity-lib.mjs";
 import httpUtils from "/data-hub/5/impl/http-utils.mjs";
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
 import mappingLib from "/data-hub/5/mapping/mapping-lib.mjs";
-import inst from '/MarkLogic/entity-services/entity-services-instance');
-import mappingStepLib from '/data-hub/5/builtins/steps/mapping/default/lib.sjs');
+const inst = require('/MarkLogic/entity-services/entity-services-instance');
+import mappingStepLib from "/data-hub/5/builtins/steps/mapping/default/lib.mjs";
 import flowUtils from "/data-hub/5/impl/flow-utils.mjs";
 const infoEvent = datahub.consts.TRACE_MAPPING;
 const infoEnabled = xdmp.traceEnabled(infoEvent);
@@ -864,7 +864,7 @@ function getSourceRecordForMapping(mappingStep, sourceRecord){
   return sourceRecordInstanceOnly ? extractInstance(sourceRecord) : sourceRecord;
 }
 
-export {
+export default {
   xsltPermissions,
   xmlMappingCollections,
   buildMappingXML,

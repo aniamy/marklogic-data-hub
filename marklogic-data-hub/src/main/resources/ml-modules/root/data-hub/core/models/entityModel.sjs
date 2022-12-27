@@ -1,4 +1,4 @@
-const consts = require("/data-hub/5/impl/consts.sjs");
+import consts from "/data-hub/5/impl/consts.mjs";
 const localDefinitionPrefix = "#/definitions/";
 const entityDebugTraceEnabled = xdmp.traceEnabled(consts.TRACE_ENTITY_DEBUG);
 

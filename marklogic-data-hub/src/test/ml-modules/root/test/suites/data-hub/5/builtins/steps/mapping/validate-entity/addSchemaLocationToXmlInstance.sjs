@@ -1,4 +1,4 @@
-const entityValidationLib = require("/data-hub/5/builtins/steps/mapping/entity-services/entity-validation-lib.sjs");
+import entityValidationLib from "/data-hub/5/builtins/steps/mapping/entity-services/entity-validation-lib.sjs";
 const test = require("/test/test-helper.xqy");
 
 const assertions = [];

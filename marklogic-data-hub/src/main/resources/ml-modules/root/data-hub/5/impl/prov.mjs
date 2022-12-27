@@ -18,9 +18,9 @@ import consts from "/data-hub/5/impl/consts.mjs";
 import config from "/com.marklogic.hub/config.mjs";
 import hubES from "/data-hub/5/impl/hub-es.mjs";
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
-import ps from "/MarkLogic/provenance";
-import op from "/MarkLogic/optic";
-import ProvenanceWriteQueue from "/data-hub/5/provenance/provenanceWriteQueue.mjs";
+const ps = require('/MarkLogic/provenance');
+const op = require('/MarkLogic/optic');
+const ProvenanceWriteQueue = require("/data-hub/5/provenance/provenanceWriteQueue.sjs");
 
 const provenanceWriteQueue = new ProvenanceWriteQueue();
 
@@ -646,7 +646,7 @@ function commit() {
   }
 }
 
-function findProvenance(docUri, relations) {
+export function findProvenance(docUri, relations) {
   return xdmp.invokeFunction(function () {
     const match = {
       attributes: {
@@ -760,7 +760,7 @@ function buildRecordEntity(stepExecutionContext, contentObject, hadMember, info)
   return resp;
 }
 
-export {
+export default {
   getProvenanceWriteQueue,
   buildRecordEntity,
   commit,
@@ -768,6 +768,6 @@ export {
   createStepPropertyAlterationRecord,
   createStepPropertyRecords,
   createStepRecord,
-  module.amp(findProvenance)
+  //findProvenance:module.amp((findProvenance))
 };
 

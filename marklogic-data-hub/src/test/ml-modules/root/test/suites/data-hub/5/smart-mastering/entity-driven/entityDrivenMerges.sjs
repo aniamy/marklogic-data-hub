@@ -1,6 +1,4 @@
-const DataHubSingleton = require("/data-hub/5/datahub-singleton.sjs");
-const datahub = DataHubSingleton.instance();
-const merge = require('/data-hub/5/builtins/steps/mastering/default/merging.sjs');
+import merge from "/data-hub/5/builtins/steps/mastering/default/merging.mjs";
 const test = require("/test/test-helper.xqy");
 
 const assertions = [];

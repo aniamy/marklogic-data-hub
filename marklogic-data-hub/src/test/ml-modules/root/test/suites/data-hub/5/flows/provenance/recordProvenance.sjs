@@ -1,11 +1,11 @@
 declareUpdate();
 // This tests provenance planned for the 5.7.0 release
-const config = require("/com.marklogic.hub/config.sjs");
+import config from "/com.marklogic.hub/config.mjs";
 const test = require("/test/test-helper.xqy");
 const hubTest = require("/test/data-hub-test-helper.xqy");
-const flowProvenance = require("/data-hub/5/flow/flowProvenance.sjs");
-const StepExecutionContext = require("/data-hub/5/flow/stepExecutionContext.sjs");
-const provLib = require("/data-hub/5/impl/prov.sjs");
+import flowProvenance from "/data-hub/5/flow/flowProvenance.mjs";
+import StepExecutionContext from "/data-hub/5/flow/stepExecutionContext.mjs";
+import provLib from "/data-hub/5/impl/prov.mjs";
 const stagingDB = config.STAGINGDATABASE;
 const assertions = [];
 

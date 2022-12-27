@@ -1,5 +1,5 @@
-const esMappingLib = require("/data-hub/5/builtins/steps/mapping/entity-services/lib.sjs");
-const flowApi = require("/data-hub/public/flow/flow-api.sjs");
+import esMappingLib from "/data-hub/5/builtins/steps/mapping/entity-services/lib.mjs";
+import flowApi from "/data-hub/public/flow/flow-api.mjs";
 const hubTest = require("/test/data-hub-test-helper.sjs");
 const test = require("/test/test-helper.xqy");
 

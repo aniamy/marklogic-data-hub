@@ -21,6 +21,6 @@ function main(content, options) {
   return Sequence.from(documentsAffected);
 }
 
-export {
+export default {
   main
 };

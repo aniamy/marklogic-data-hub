@@ -1,4 +1,4 @@
-const ing = require('/data-hub/5/builtins/steps/ingestion/default/main.sjs');
+import ing from "/data-hub/5/builtins/steps/ingestion/default/main.mjs";
 const test = require("/test/test-helper.xqy");
 let assertions = [];
 

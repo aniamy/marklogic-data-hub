@@ -1,5 +1,5 @@
 const test = require("/test/test-helper.xqy");
-const jobs = require("/data-hub/5/impl/jobs.sjs");
+import jobs from "/data-hub/5/impl/jobs.mjs";
 
 function getJob(jobId) {
     return fn.head(

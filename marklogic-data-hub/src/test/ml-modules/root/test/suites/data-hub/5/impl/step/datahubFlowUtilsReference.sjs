@@ -17,7 +17,7 @@
 
 const test = require("/test/test-helper.xqy");
 
-const DataHubSingleton = require('/data-hub/5/datahub-singleton.sjs');
+import DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
 const dataHub = DataHubSingleton.instance();
 
 [

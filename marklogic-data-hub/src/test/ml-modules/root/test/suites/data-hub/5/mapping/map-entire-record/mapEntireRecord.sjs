@@ -1,7 +1,7 @@
-const DataHubSingleton = require("/data-hub/5/datahub-singleton.sjs");
+import DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
 const test = require("/test/test-helper.xqy");
 const hubTest = require("/test/data-hub-test-helper.sjs");
-const esMappingLib = require("/data-hub/5/builtins/steps/mapping/entity-services/lib.sjs");
+import esMappingLib from "/data-hub/5/builtins/steps/mapping/entity-services/lib.mjs";
 const datahub = DataHubSingleton.instance();
 let assertions = [];
 

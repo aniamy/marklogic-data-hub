@@ -15,7 +15,7 @@
  */
 'use strict';
 
-export class Debug {
+export default class Debug {
   constructor(config = null) {
     if(!config) {
       config = require("/com.marklogic.hub/config.sjs");
@@ -90,3 +90,4 @@ export class Debug {
 //      })
   }
 }
+

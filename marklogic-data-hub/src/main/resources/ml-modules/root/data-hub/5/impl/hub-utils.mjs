@@ -20,7 +20,7 @@ function capitalize(str) {
 }
 
 function deleteDocument(docUri, database) {
-  xdmp.invoke('/data-hub/5/impl/hub-utils/invoke-single-delete.sjs', {docUri}, {
+  xdmp.invoke('/data-hub/5/impl/hub-utils/invoke-single-delete.mjs', {docUri}, {
     database: xdmp.database(database),
     commit: 'auto',
     update: 'true',
@@ -118,7 +118,7 @@ function documentToContentDescriptor(doc, options = {}) {
     };
 }
 
-function queryToContentDescriptorArray(query, options = {}, database) {
+/*function queryToContentDescriptorArray(query, options = {}, database) {
   let contentArray = [];
   invokeFunction(function () {
     let results = cts.search(query, [cts.indexOrder(cts.uriReference()), "score-zero"], 0);
@@ -127,7 +127,7 @@ function queryToContentDescriptorArray(query, options = {}, database) {
     }
   }, database);
   return contentArray;
-}
+}*/
 
 function documentsToContentDescriptorArray(documents, options = {}) {
   let contentArray = [];
@@ -212,13 +212,13 @@ function requireFunction(modulePath, functionName) {
   return cachedLibraries[modulePath][functionName];
 }
 
-export {
+export default{
   capitalize,
   deleteDocument,
   documentsToContentDescriptorArray,
   documentToContentDescriptor,
   error,
-  evalInDatabase: module.amp(evalInDatabase),
+  evalInDatabase,
   getErrorMessage,
   getObjectValues,
   hubTrace,

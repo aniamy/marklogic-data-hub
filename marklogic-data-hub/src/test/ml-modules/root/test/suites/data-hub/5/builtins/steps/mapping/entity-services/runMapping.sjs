@@ -1,5 +1,5 @@
 const lib = require("lib/lib.sjs");
-const mapping = require("/data-hub/5/builtins/steps/mapping/entity-services/main.sjs");
+import mapping from "/data-hub/5/builtins/steps/mapping/entity-services/main.mjs";
 const test = require("/test/test-helper.xqy");
 const serverTimezone = sem.timezoneString(fn.currentDateTime());
 const assertions = [];

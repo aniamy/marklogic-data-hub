@@ -1,7 +1,7 @@
 'use strict';
 
-const config = require("/com.marklogic.hub/config.sjs");
-const jobQueryLib = require("/data-hub/5/flow/job-query-lib.sjs");
+import config from "/com.marklogic.hub/config.mjs";
+import jobQueryLib from "/data-hub/5/flow/job-query-lib.mjs";
 const test = require("/test/test-helper.xqy");
 
 xdmp.invokeFunction(function () {

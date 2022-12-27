@@ -1,7 +1,5 @@
-const esMappingLib = require("/data-hub/5/builtins/steps/mapping/entity-services/lib.sjs");
+import esMappingLib from "/data-hub/5/builtins/steps/mapping/entity-services/lib.mjs";
 const test = require("/test/test-helper.xqy");
-
-const entityType = "http://www.marklogic.com/Customer-0.0.1/Customer";
 
 function testvalidateAndTestMapping(mapURI = "/mappings/CustomerMapping/CustomerMapping-0.mapping.json", uri = "/content/valid-customer.json") {
   let map = cts.doc(mapURI).toObject();

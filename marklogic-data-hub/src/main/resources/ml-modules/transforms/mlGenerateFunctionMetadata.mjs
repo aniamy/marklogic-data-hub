@@ -1,9 +1,9 @@
 'use strict';
-import es from "/MarkLogic/entity-services/entity-services";
-import DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
+const es = require('/MarkLogic/entity-services/entity-services');
+import * as DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
 const datahub = DataHubSingleton.instance();
-import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
-import xqueryLib from "/data-hub/5/builtins/steps/mapping/entity-services/xquery-lib.xqy";
+import * as hubUtils from "/data-hub/5/impl/hub-utils.mjs";
+const xqueryLib = require('/data-hub/5/builtins/steps/mapping/entity-services/xquery-lib.xqy');
 
 export function mlGenerateFunctionMetadata(context, params, content) {
   const uri = context.uri;

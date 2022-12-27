@@ -1,4 +1,4 @@
-const main = require("/data-hub/5/builtins/steps/mapping/default/main.sjs");
+import main from "/data-hub/5/builtins/steps/mapping/default/main.mjs";
 const test = require("/test/test-helper.xqy");
 
 const docXML = fn.head(xdmp.unquote(`<envelope xmlns="http://marklogic.com/entity-services">

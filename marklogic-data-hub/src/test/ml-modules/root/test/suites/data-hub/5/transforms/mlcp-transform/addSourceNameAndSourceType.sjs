@@ -1,5 +1,5 @@
 const test = require("/test/test-helper.xqy");
-const mlcpTransform = require("/data-hub/5/transforms/mlcp-flow-transform.sjs");
+import mlcpTransform from "/data-hub/5/transforms/mlcp-flow-transform.mjs";
 
 function testAddSourceNameAndSourceType() {
   const assertions = [];

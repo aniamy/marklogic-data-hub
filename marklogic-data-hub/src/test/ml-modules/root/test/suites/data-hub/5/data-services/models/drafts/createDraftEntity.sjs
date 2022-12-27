@@ -1,4 +1,4 @@
-const entityLib = require("/data-hub/5/impl/entity-lib.sjs");
+import entityLib from "/data-hub/5/impl/entity-lib.mjs";
 const test = require("/test/test-helper.xqy");
 
 const model = {

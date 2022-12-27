@@ -1,4 +1,4 @@
-const flowRunner = require("/data-hub/5/flow/flowRunner.sjs");
+import flowRunner from "/data-hub/5/flow/flowRunner.mjs";
 const hubTest = require("/test/data-hub-test-helper.sjs");
 const test = require("/test/test-helper.xqy");
 
@@ -47,9 +47,9 @@ const assertions = [
   test.assertEqual(0, secondStepResponse.successfulBatches),
   test.assertEqual(false, secondStepResponse.success),
 
-  test.assertEqual(2, hubTest.getUrisInCollection("customStepOne").length, 
+  test.assertEqual(2, hubTest.getUrisInCollection("customStepOne").length,
     "Since step one completed both docs, both should have been written to the step one colletion"),
-  test.assertEqual(1, hubTest.getUrisInCollection("customStepTwo").length, 
+  test.assertEqual(1, hubTest.getUrisInCollection("customStepTwo").length,
     "The doc that didn't failed should have been written to the second step's collection")
 ];
 

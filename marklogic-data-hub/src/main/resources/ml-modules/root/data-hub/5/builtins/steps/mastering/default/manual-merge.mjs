@@ -1,7 +1,7 @@
 const merging = require('/com.marklogic.smart-mastering/merging.xqy');
-const masteringStepLib = require('/data-hub/5/builtins/steps/mastering/default/lib.sjs');
+import masteringStepLib from "/data-hub/5/builtins/steps/mastering/default/lib.mjs";
 const collImpl = require('/com.marklogic.smart-mastering/survivorship/merging/collections.xqy');
-const hubUtils = require("/data-hub/5/impl/hub-utils.sjs");
+import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
 const quickStartRequiredOptionProperty = 'mergeOptions';
 const hubCentralRequiredOptionProperty = 'mergeRules';
 
@@ -20,6 +20,6 @@ function main(content, options) {
   return Sequence.from(filteredContent.concat([mergedDocument]));
 }
 
-export {
+export default {
   main
 };

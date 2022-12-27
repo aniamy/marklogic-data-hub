@@ -1,6 +1,6 @@
 const test = require("/test/test-helper.xqy");
 
-const cma = require("/data-hub/5/data-services/mastering/calculateMatchingActivityLib.sjs");
+import cma from "/data-hub/5/data-services/mastering/calculateMatchingActivityLib.mjs";
 
 
 const step1 =

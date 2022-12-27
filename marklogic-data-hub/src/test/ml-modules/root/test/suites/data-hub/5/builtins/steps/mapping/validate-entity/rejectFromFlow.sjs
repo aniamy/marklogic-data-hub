@@ -1,6 +1,5 @@
-const config = require("/com.marklogic.hub/config.sjs");
-const DataHubSingleton = require("/data-hub/5/datahub-singleton.sjs");
-const esMappingLib = require("/data-hub/5/builtins/steps/mapping/entity-services/lib.sjs");
+import config from "/com.marklogic.hub/config.mjs";
+import DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
 const lib = require("lib/lib.sjs");
 const test = require("/test/test-helper.xqy");
 

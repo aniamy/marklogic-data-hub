@@ -1,8 +1,8 @@
-const config = require("/com.marklogic.hub/config.sjs");
+import config from "/com.marklogic.hub/config.mjs";
 const test = require("/test/test-helper.xqy");
 const hubTestXqy = require("/test/data-hub-test-helper.xqy");
 const hubTest = require("/test/data-hub-test-helper.sjs");
-const DataHubSingleton = require("/data-hub/5/datahub-singleton.sjs");
+import DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
 const datahub = DataHubSingleton.instance();
 
 function flowWorksWithLatestProvenance() {

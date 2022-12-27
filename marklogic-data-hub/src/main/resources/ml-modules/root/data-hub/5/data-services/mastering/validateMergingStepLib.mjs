@@ -15,8 +15,8 @@
  */
 'use strict';
 
-import mergingOptions from "/com.marklogic.smart-mastering/survivorship/merging/options.xqy";
-import common from "/data-hub/5/data-services/mastering/validateStepCommonLib.mjs";
+const mergingOptions = require("/com.marklogic.smart-mastering/survivorship/merging/options.xqy");
+importcommon from "/data-hub/5/data-services/mastering/validateStepCommonLib.mjs";
 
 function propertiesWarning(mergeStep, entityPropertyPath) {
     let compiledOptions = mergingOptions.compileMergeOptions(mergeStep, true);

@@ -1,6 +1,6 @@
 'use strict';
 
-const Artifacts = require('/data-hub/5/artifacts/core.sjs');
+import Artifacts from "/data-hub/5/artifacts/core.sjs";
 const flowService = require("../lib/flowService.sjs");
 const stepService = require("../lib/stepService.sjs");
 const test = require("/test/test-helper.xqy");
@@ -35,7 +35,7 @@ const updatedSteps = flowService.getFlow(flowName).steps;
   test.assertEqual("fourth-mapping", updatedSteps["18"].stepId,
     "If the numbers are out of sequence, then when a new step is added, it'll get a step number equal to " +
     "the highest step number plus one"),
-  
+
   test.assertEqual("first-mapping", updatedSteps["4"].stepId),
   test.assertEqual("second-mapping", updatedSteps["17"].stepId),
   test.assertEqual("third-mapping", updatedSteps["6"].stepId)

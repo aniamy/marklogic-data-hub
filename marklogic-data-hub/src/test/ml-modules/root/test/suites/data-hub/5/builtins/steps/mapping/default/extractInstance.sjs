@@ -1,5 +1,5 @@
 const test = require("/test/test-helper.xqy");
-const mappingLib = require("/data-hub/5/builtins/steps/mapping/default/lib.sjs");
+import mappingLib from "/data-hub/5/builtins/steps/mapping/default/lib.mjs";
 const emptySequence = Sequence.from([]);
 
 function describe(item) {

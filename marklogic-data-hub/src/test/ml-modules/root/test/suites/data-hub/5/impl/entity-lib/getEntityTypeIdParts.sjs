@@ -1,5 +1,5 @@
 const test = require("/test/test-helper.xqy");
-const entityLib = require("/data-hub/5/impl/entity-lib.sjs");
+import entityLib from "/data-hub/5/impl/entity-lib.mjs";
 
 function validEntityTypeId() {
   const parts = entityLib.getEntityTypeIdParts("http://example.org/PersonModel-1/Person");

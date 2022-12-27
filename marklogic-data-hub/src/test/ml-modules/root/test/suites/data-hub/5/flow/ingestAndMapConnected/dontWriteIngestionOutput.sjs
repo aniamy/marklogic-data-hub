@@ -1,4 +1,4 @@
-const flowApi = require("/data-hub/public/flow/flow-api.sjs");
+import flowApi from "/data-hub/public/flow/flow-api.mjs";
 const hubTest = require("/test/data-hub-test-helper.sjs");
 const test = require("/test/test-helper.xqy");
 
@@ -30,13 +30,13 @@ assertions.push(
 );
 
 assertions.push(
-  test.assertEqual(false, hubTest.stagingDocumentExists("/customer1.json"), 
+  test.assertEqual(false, hubTest.stagingDocumentExists("/customer1.json"),
     "Because writeStepOutput=true for the ingestion step, no output should have been persisted")
 );
 
 const mappedCustomer = hubTest.getRecord("/customer1.json");
 assertions.push(
-  test.assertEqual(1, mappedCustomer.document.envelope.instance.Customer.customerId, 
+  test.assertEqual(1, mappedCustomer.document.envelope.instance.Customer.customerId,
     "The output of the mapping step should have been written"
   )
 );

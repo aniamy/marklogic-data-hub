@@ -19,7 +19,7 @@ xdmp.securityAssert("http://marklogic.com/data-hub/privileges/read-entity-model"
 
 import entityLib from "/data-hub/5/impl/entity-lib.mjs";
 import conceptLib from "/data-hub/5/impl/concept-lib.mjs";
-import ext from "/data-hub/extensions/entity/build-entity-query.xqy";
+const ext = require("/data-hub/extensions/entity/build-entity-query.xqy");
 
 const includeDrafts = external.includeDrafts;
 

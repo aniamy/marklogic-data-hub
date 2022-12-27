@@ -1,5 +1,5 @@
-const { Mergeable } = require('/data-hub/5/mastering/merging/mergeable.sjs');
-const hubUtils = require("/data-hub/5/impl/hub-utils.sjs");
+import Mergeable from "/data-hub/5/mastering/merging/mergeable.mjs";
+import hubUtils from "/data-hub/5/impl/hub-utils.sjs";
 const test = require("/test/test-helper.xqy");
 
 function testMergeableClass() {

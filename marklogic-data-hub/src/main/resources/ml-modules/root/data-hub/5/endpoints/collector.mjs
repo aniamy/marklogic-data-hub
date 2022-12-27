@@ -19,7 +19,7 @@ import collectorLib from  "/data-hub/5/endpoints/collectorLib.mjs";
 import DataHub from  "/data-hub/5/datahub.mjs";
 const datahub = new DataHub();
 import httpUtils from  "/data-hub/5/impl/http-utils.mjs";
-import parameters from  "/MarkLogic/rest-api/endpoints/parameters.xqy";
+const parameters = require("/MarkLogic/rest-api/endpoints/parameters.xqy");
 
 xdmp.securityAssert(['http://marklogic.com/xdmp/privileges/rest-reader'], 'execute');
 

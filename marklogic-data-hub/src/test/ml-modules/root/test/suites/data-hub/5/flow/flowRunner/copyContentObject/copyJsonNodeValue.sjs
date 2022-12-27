@@ -1,4 +1,4 @@
-const flowRunner = require("/data-hub/5/flow/flowRunner.sjs");
+import flowRunner from "/data-hub/5/flow/flowRunner.mjs";
 const test = require("/test/test-helper.xqy");
 
 // Ignoring context, since that's tested in copyJsonObjectValue.sjs
@@ -9,7 +9,7 @@ const content = {
 
 const copy = flowRunner.copyContentObject(content);
 
-// Modify the original content; in this scenario, we know that a shallow copy of content.value is safe because a JSON 
+// Modify the original content; in this scenario, we know that a shallow copy of content.value is safe because a JSON
 // node cannot be modified; a user must first call toObject on it
 content.uri = "modified-uri";
 const objectValue = content.value.toObject();

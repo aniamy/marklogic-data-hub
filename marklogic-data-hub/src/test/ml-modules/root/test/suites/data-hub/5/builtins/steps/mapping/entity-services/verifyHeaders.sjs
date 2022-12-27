@@ -1,4 +1,4 @@
-const main = require("/data-hub/5/builtins/steps/mapping/entity-services/main.sjs");
+import main from "/data-hub/5/builtins/steps/mapping/entity-services/main.mjs";
 const test = require("/test/test-helper.xqy");
 
 const entityInfo = {

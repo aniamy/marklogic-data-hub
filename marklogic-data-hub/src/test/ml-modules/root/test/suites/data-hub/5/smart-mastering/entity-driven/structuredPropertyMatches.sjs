@@ -1,5 +1,5 @@
-const hubUtils = require("/data-hub/5/impl/hub-utils.sjs");
-const match = require('/data-hub/5/builtins/steps/mastering/default/matching.sjs');
+import hubUtils from "/data-hub/5/impl/hub-utils.sjs";
+import match from "/data-hub/5/builtins/steps/mastering/default/matching.mjs";
 const test = require("/test/test-helper.xqy");
 
 const assertions = [];

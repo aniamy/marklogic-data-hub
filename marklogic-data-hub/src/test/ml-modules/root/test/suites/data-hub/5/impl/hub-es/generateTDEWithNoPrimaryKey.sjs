@@ -1,4 +1,4 @@
-const hubUtils = require("/data-hub/5/impl/hub-utils.sjs")
+import hubUtils from "/data-hub/5/impl/hub-utils.sjs";
 const hubTestXqy = require("/test/data-hub-test-helper.xqy")
 const test = require("/test/test-helper.xqy");
 

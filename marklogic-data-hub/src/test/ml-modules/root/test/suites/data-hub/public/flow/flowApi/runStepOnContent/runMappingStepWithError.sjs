@@ -1,4 +1,4 @@
-const flowApi = require("/data-hub/public/flow/flow-api.sjs");
+import flowApi from "/data-hub/public/flow/flow-api.mjs";
 const hubTest = require("/test/data-hub-test-helper.sjs");
 const test = require("/test/test-helper.xqy");
 

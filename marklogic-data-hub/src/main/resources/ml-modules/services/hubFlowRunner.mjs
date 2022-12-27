@@ -17,7 +17,7 @@
 
 import flowApi from "/data-hub/public/flow/flow-api.mjs";
 import httpUtils from "/data-hub/5/impl/http-utils.mjs";
-import json from "/MarkLogic/json/json.xqy";
+const json = require('/MarkLogic/json/json.xqy');
 
 export function post(context, params, input) {
   xdmp.securityAssert("http://marklogic.com/data-hub/privileges/run-step", "execute");

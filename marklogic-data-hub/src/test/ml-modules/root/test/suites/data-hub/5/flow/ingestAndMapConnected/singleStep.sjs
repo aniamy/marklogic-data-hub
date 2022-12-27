@@ -1,4 +1,4 @@
-const flowApi = require("/data-hub/public/flow/flow-api.sjs");
+import flowApi from "/data-hub/public/flow/flow-api.mjs";
 const hubTest = require("/test/data-hub-test-helper.sjs");
 const test = require("/test/test-helper.xqy");
 
@@ -17,7 +17,7 @@ const response = flowApi.runFlowOnContent(flowName, contentArray, jobId, runtime
 assertions.push(
   test.assertEqual("finished", response.jobStatus),
   test.assertEqual("completed step 1", response.stepResponses["1"].status),
-  test.assertEqual(1, Object.keys(response.stepResponses).length, 
+  test.assertEqual(1, Object.keys(response.stepResponses).length,
     "Only the first step should have been run")
 );
 

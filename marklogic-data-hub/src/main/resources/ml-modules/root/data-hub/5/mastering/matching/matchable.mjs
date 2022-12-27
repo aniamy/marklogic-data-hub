@@ -7,7 +7,7 @@ const matchingDebugTraceEnabled = xdmp.traceEnabled(consts.TRACE_MATCHING_DEBUG)
 const matchingTraceEnabled = xdmp.traceEnabled(consts.TRACE_MATCHING) || matchingDebugTraceEnabled;
 const matchingTraceEvent = xdmp.traceEnabled(consts.TRACE_MATCHING) ? consts.TRACE_MATCHING : consts.TRACE_MATCHING_DEBUG;
 import groupQueries from "./matcher.mjs";
-import requireFunction from "../../impl/hub-utils.mjs";
+import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
 
 /*
  * A class that encapsulates the configurable portions of the matching process.
@@ -379,7 +379,7 @@ class MatchRulesetDefinition {
     let matchRule = passMatchRule.toObject();
     let thesaurus = matchRule.options.thesaurusURI;
     let expandOptions = hubUtils.normalizeToArray(value).map((val) => fn.string(val).toLowerCase());
-    const queryLookup = requireFunction("/MarkLogic/thesaurus.xqy", "queryLookup");
+    const queryLookup = hubUtils.requireFunction("/MarkLogic/thesaurus.xqy", "queryLookup");
     let entries = queryLookup(thesaurus, cts.elementValueQuery(fn.QName("http://marklogic.com/xdmp/thesaurus", "term"), expandOptions, "case-insensitive"), "elements");
     let options = matchRule.options;
     let allEntries = [];
@@ -418,7 +418,7 @@ class MatchRulesetDefinition {
     let spellOption = {
       distanceThreshold : matchRule.options.distanceThreshold
     };
-    const suggest = requireFunction("/MarkLogic/spell.xqy", "suggest");
+    const suggest = hubUtils.requireFunction("/MarkLogic/spell.xqy", "suggest");
     let results = hubUtils.normalizeToArray(value).map((val) => suggest(dictionary, fn.string(val), spellOption));
     return Sequence.from(results);
   }
@@ -696,7 +696,7 @@ class ThresholdDefinition {
   }
 }
 
-export {
+export default {
   Matchable,
   MatchRulesetDefinition
 }

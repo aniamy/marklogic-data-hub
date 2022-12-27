@@ -112,7 +112,7 @@ function buildEnvelope(doc, instance, outputFormat, options) {
   return flowUtils.makeEnvelope(instance, headers, triples, outputFormat);
 }
 
-export {
+export default {
   main,
   buildEnvelope
 };

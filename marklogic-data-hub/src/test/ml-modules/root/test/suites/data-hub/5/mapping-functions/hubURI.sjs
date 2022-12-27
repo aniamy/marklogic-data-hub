@@ -1,5 +1,5 @@
 const core = require('/data-hub/5/mapping-functions/core-functions.xqy');
-const coreSjs = require('/data-hub/5/mapping-functions/core.sjs');
+import coreSjs from "/data-hub/5/mapping-functions/core.mjs";
 const test = require("/test/test-helper.xqy");
 
 const orderUriRegex = new RegExp('^\/Order\/[0-9a-z\-]*.json$');

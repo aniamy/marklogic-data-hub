@@ -17,8 +17,8 @@
 
 xdmp.securityAssert("http://marklogic.com/data-hub/hub-central/privileges/export-entities", "execute");
 
-import op from "/MarkLogic/optic";
-import search from "/MarkLogic/appservices/search/search";
+const op = require('/MarkLogic/optic');
+const search = require('/MarkLogic/appservices/search/search');
 import entityLib from "/data-hub/5/impl/entity-lib.mjs";
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
 import httpUtils from "/data-hub/5/impl/http-utils.mjs";

@@ -20,8 +20,8 @@ import consts from "/data-hub/5/impl/consts.mjs"
 import entityLib from "/data-hub/5/impl/entity-lib.mjs"
 import entitySearchLib from "/data-hub/5/entities/entity-search-lib.mjs"
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs"
-import sem from "/MarkLogic/semantics.xqy";
-import op from "/MarkLogic/optic";
+const sem = require("/MarkLogic/semantics.xqy");
+const op = require('/MarkLogic/optic');
 import {getPredicatesByModel} from "./entity-lib.mjs"
 const hubCentralConfig = cts.doc("/config/hubCentral.json");
 const graphDebugTraceEnabled = xdmp.traceEnabled(consts.TRACE_GRAPH_DEBUG);
@@ -730,7 +730,7 @@ function supportsGraphConceptsSearch() {
   return xdmp.effectiveVersion() >= 10000900;
 }
 
-export {
+export default {
   describeIRI,
   getAllEntityIds,
   getAllPredicates,

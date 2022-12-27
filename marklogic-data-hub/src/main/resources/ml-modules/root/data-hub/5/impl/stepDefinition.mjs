@@ -19,7 +19,7 @@ import httpUtils from "/data-hub/5/impl/http-utils.mjs";
 
 const cachedModules = {};
 
-export class StepDefinition {
+export default class StepDefinition {
 
   constructor(config = null) {
     const Perf = require("/data-hub/5/impl/perf.sjs");
@@ -70,4 +70,5 @@ export class StepDefinition {
     return cachedModules[moduleLibraryURI];
   }
 }
+
 

@@ -1,4 +1,4 @@
-const merging = require("/data-hub/5/builtins/steps/mastering/default/merging.sjs");
+import merging from "/data-hub/5/builtins/steps/mastering/default/merging.mjs";
 const test = require("/test/test-helper.xqy");
 
 let results = [

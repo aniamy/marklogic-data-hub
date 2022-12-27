@@ -1,6 +1,6 @@
-const config = require("/com.marklogic.hub/config.sjs");
+import config from "/com.marklogic.hub/config.mjs";
 const test = require("/test/test-helper.xqy");
-const jobs = require("/data-hub/5/impl/jobs.sjs");
+import jobs from "/data-hub/5/impl/jobs.mjs";
 
 const result = jobs.buildJobPermissions();
 const assertions = [

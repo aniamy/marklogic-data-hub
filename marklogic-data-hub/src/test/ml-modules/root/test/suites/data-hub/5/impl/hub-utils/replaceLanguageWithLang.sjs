@@ -1,4 +1,4 @@
-const hubUtils = require("/data-hub/5/impl/hub-utils.sjs");
+import hubUtils from "/data-hub/5/impl/hub-utils.sjs";
 const test = require("/test/test-helper.xqy");
 
 const assertions = [];

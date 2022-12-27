@@ -1,5 +1,5 @@
-const config = require("/com.marklogic.hub/config.sjs");
-const flowApi = require("/data-hub/public/flow/flow-api.sjs");
+import config from "/com.marklogic.hub/config.mjs";
+import flowApi from "/data-hub/public/flow/flow-api.mjs";
 const hubTest = require("/test/data-hub-test-helper.sjs");
 const test = require("/test/test-helper.xqy");
 

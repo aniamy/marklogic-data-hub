@@ -1,5 +1,5 @@
-const esMappingLib = require("/data-hub/5/builtins/steps/mapping/entity-services/lib.sjs");
-const DataHubSingleton = require("/data-hub/5/datahub-singleton.sjs");
+import esMappingLib from "/data-hub/5/builtins/steps/mapping/entity-services/lib.mjs";
+import DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
 const datahub = DataHubSingleton.instance();
 
 const content = ['/content/customer.json'].map(uri => {

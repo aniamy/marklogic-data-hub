@@ -13,7 +13,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import mastering from "/com.marklogic.smart-mastering/process-records.xqy";
+const mastering = require("/com.marklogic.smart-mastering/process-records.xqy");
 import masteringStepLib from "/data-hub/5/builtins/steps/mastering/default/lib.mjs";
 import httpUtils from "/data-hub/5/impl/http-utils.mjs";
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
@@ -125,7 +125,7 @@ function buildResult(matchSummaryJson, options, collections) {
   return result;
 }
 
-export {
+export default {
   main,
   buildResult,
   filterContentAlreadyProcessed

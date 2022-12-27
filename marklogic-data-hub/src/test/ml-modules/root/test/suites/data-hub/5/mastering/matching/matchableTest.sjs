@@ -1,4 +1,4 @@
-const { Matchable, MatchRulesetDefinition } = require('/data-hub/5/mastering/matching/matchable.sjs');
+import Matchable from "/data-hub/5/mastering/matching/matchable.mjs";
 const test = require("/test/test-helper.xqy");
 
 function testMatchableClass() {

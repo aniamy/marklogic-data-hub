@@ -1,4 +1,4 @@
-const flowRunner = require("/data-hub/5/flow/flowRunner.sjs");
+import flowRunner from "/data-hub/5/flow/flowRunner.mjs";
 const test = require("/test/test-helper.xqy");
 
 const flowName = "myFlow";

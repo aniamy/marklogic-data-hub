@@ -1,4 +1,4 @@
-const lib = require("/data-hub/5/builtins/steps/mastering/default/lib.sjs");
+import lib from "/data-hub/5/builtins/steps/mastering/default/lib.mjs";
 const test = require("/test/test-helper.xqy");
 const emptySequence = Sequence.from([]);
 

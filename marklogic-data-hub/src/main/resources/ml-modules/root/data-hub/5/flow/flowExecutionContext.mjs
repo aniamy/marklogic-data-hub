@@ -15,7 +15,7 @@
 */
 'use strict';
 
-import Batch from "ml-modules/root/data-hub/5/flow/batch.mjs";
+import Batch from "/data-hub/5/flow/batch.mjs";
 import consts from "/data-hub/5/impl/consts.mjs";
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
 import Job from "./job.mjs";
@@ -27,7 +27,7 @@ const INFO_EVENT = consts.TRACE_FLOW;
  * Captures state associated with the execution of a flow. Provides methods for updating the flowResponse and, if job
  * output is not disabled, the associated Job document.
  */
-export class FlowExecutionContext {
+class FlowExecutionContext {
 
   /**
    *
@@ -165,4 +165,8 @@ export class FlowExecutionContext {
 
     hubUtils.hubTrace(INFO_EVENT, `Finished processing content with flow ${this.flow.name}`);
   }
+}
+
+export default{
+    FlowExecutionContext
 }

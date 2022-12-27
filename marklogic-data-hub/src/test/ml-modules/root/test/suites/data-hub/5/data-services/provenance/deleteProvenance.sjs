@@ -1,6 +1,6 @@
 'use strict';
 
-const config = require("/com.marklogic.hub/config.sjs");
+import config from "/com.marklogic.hub/config.mjs";
 const hubTest = require("/test/data-hub-test-helper.sjs");
 const test = require("/test/test-helper.xqy");
 const provenanceService = require("../lib/provenanceService.sjs");
