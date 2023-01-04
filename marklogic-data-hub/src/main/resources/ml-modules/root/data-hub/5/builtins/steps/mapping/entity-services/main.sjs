@@ -14,6 +14,8 @@ let entityModelMap = {};
 const traceEvent = consts.TRACE_MAPPING_DEBUG;
 
 function main(contentSequence, options, stepExecutionContext) {
+  const startTime = fn.currentDateTime();
+  xdmp.log("**START** " + startTime);
   // The flow framework will pass a sequence, but a number of tests still pass a single object, as this step used to be
   // acceptsBatch=false prior to 5.5.
   contentSequence = hubUtils.normalizeToSequence(contentSequence);
@@ -62,6 +64,10 @@ function main(contentSequence, options, stepExecutionContext) {
   let outputContentArray = [];
   let currentContentUri;
 
+  let instances = [];
+  let mappingParamsAll = Object.assign({},  userMappingParameterMap);;
+  let arrayOfInstanceArrays;
+
   for (const content of contentSequence) {
     currentContentUri = content.uri;
     try {
@@ -71,61 +77,13 @@ function main(contentSequence, options, stepExecutionContext) {
 
       let doc = content.value;
       const instance = lib.getSourceRecordForMapping(mappingStep, doc);
+      instances.push(instance);
 
-      const mappingParams = Object.assign({}, {"URI":currentContentUri}, userMappingParameterMap);
+      Object.assign(mappingParamsAll, {"URI":currentContentUri});
 
       // For not-yet-known reasons, catching this error and then simply rethrowing it causes the MappingTest JUnit class
       // to pass due to the "message" part of the JSON in the stepOutput containing the expected output when this is done.
-      let arrayOfInstanceArrays;
-      try {
-        arrayOfInstanceArrays = xqueryLib.dataHubMapToCanonical(instance, mappingURIforXML, mappingParams, {"format":outputFormat});
-      } catch (e) {
-        const errorMessage = mappingLibrary.extractFriendlyErrorMessage(e);
-        if(errorMessage){
-          throw Error(errorMessage);
-        }
-        else{
-          throw Error(e);
-        }
-      }
-      hubUtils.hubTrace(traceEvent, `Entity instances with mapping ${mappingStep.name} and source document ${currentContentUri}: ${arrayOfInstanceArrays}`);
 
-      let counter = 0;
-      let contentResponse = [];
-
-      for(const instanceArray of xdmp.arrayValues(arrayOfInstanceArrays)){
-        /* The first instance in the array is the target entity instance. 'permissions' and 'collections' for target instance
-        are applied outside of main.sjs */
-        let entityName ;
-        let entityContext = {};
-
-        if(counter == 0){
-          entityName = targetEntityName;
-          entityContext = content.context;
-        }
-        else {
-          let currentRelatedMapping = mappingStep.relatedEntityMappings[counter-1];
-          entityName = lib.getEntityName(fn.string(currentRelatedMapping.targetEntityType));
-          entityContext = createContextForRelatedEntityInstance(currentRelatedMapping, content);
-        }
-        const entityModel = entityModelMap[entityName];
-
-        for(const entityInstance of xdmp.arrayValues(instanceArray)){
-          let entityContent = {};
-          if(entityName == targetEntityName){
-            entityContent = Object.assign(entityContent, content);
-          }
-          entityContent["value"] = entityInstance.value;
-          entityContent["uri"] = buildUri(entityInstance, entityName, outputFormat);
-          const entityInstanceContext = Object.assign({}, entityContext);
-          entityContent = validateEntityInstanceAndBuildEnvelope(doc, entityContent, entityInstanceContext, entityModel, outputFormat, options);
-          hubUtils.hubTrace(traceEvent, `Entity instance envelope created with mapping ${mappingStep.name} and source document ${currentContentUri}: ${entityContent.value}`);
-          contentResponse.push(entityContent);
-        }
-        counter++;
-      }
-
-      outputContentArray = outputContentArray.concat(contentResponse);
     } catch (error) {
       // This should always be defined, but some DHF unit tests do not pass it in
       if (stepExecutionContext != null) {
@@ -140,8 +98,62 @@ function main(contentSequence, options, stepExecutionContext) {
     }
   }
 
+  try {
+    arrayOfInstanceArrays = xqueryLib.dataHubMapToCanonical(instances, mappingURIforXML, mappingParamsALL, {"format":outputFormat});
+  } catch (e) {
+    const errorMessage = mappingLibrary.extractFriendlyErrorMessage(e);
+    if(errorMessage){
+      throw Error(errorMessage);
+    }
+    else{
+      throw Error(e);
+    }
+  }
+  //hubUtils.hubTrace(traceEvent, `Entity instances with mapping ${mappingStep.name} and source document ${currentContentUri}: ${arrayOfInstanceArrays}`);
+
+  let contentResponse = generateContentResponse(arrayOfInstanceArrays);
+  outputContentArray = outputContentArray.concat(contentResponse);
+
+  xdmp.log("**END for   **" + startTime);
+  xdmp.log("**END time   **" + fn.currentDateTime());
+  xdmp.log("**END total ** " + fn.currentDateTime().subtract(startTime));
   // A number of DHF tests expect a single object returned, while the flow framework is fine with one or an array.
   return outputContentArray.length == 1 ? outputContentArray[0] : outputContentArray;
+}
+
+function generateContentResponse(arrayOfInstanceArrays) {
+  let counter = 0;
+  for(const instanceArray of xdmp.arrayValues(arrayOfInstanceArrays)){
+    /* The first instance in the array is the target entity instance. 'permissions' and 'collections' for target instance
+    are applied outside of main.sjs */
+    let entityName ;
+    let entityContext = {};
+
+    if(counter == 0){
+      entityName = targetEntityName;
+      entityContext = content.context;
+    }
+    else {
+      let currentRelatedMapping = mappingStep.relatedEntityMappings[counter-1];
+      entityName = lib.getEntityName(fn.string(currentRelatedMapping.targetEntityType));
+      entityContext = createContextForRelatedEntityInstance(currentRelatedMapping, content);
+    }
+    const entityModel = entityModelMap[entityName];
+
+    for(const entityInstance of xdmp.arrayValues(instanceArray)){
+      let entityContent = {};
+      if(entityName == targetEntityName){
+        entityContent = Object.assign(entityContent, content);
+      }
+      entityContent["value"] = entityInstance.value;
+      entityContent["uri"] = buildUri(entityInstance, entityName, outputFormat);
+      const entityInstanceContext = Object.assign({}, entityContext);
+      entityContent = validateEntityInstanceAndBuildEnvelope(doc, entityContent, entityInstanceContext, entityModel, outputFormat, options);
+      hubUtils.hubTrace(traceEvent, `Entity instance envelope created with mapping ${mappingStep.name} and source document ${currentContentUri}: ${entityContent.value}`);
+      contentResponse.push(entityContent);
+    }
+    counter++;
+  }
 }
 
 function buildUri(entityInstance, entityName, outputFormat){
