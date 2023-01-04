@@ -54,7 +54,6 @@ function main(contentSequence, options, stepExecutionContext) {
     let errMsg = `Could not find targetEntityType in mapping: ${xdmp.nodeUri(mapping)}.`;
     throw Error(errMsg);
   }
-  let targetEntityName = lib.getEntityName(targetEntityType);
 
   const mappingStep = fn.head(mapping).toObject();
   buildEntityModelMap(mappingStep);
