@@ -1,7 +1,9 @@
-import DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const DataHubSingleton = mjsProxy.requireMjsModule("/data-hub/5/datahub-singleton.mjs");
 const test = require("/test/test-helper.xqy");
 const hubTest = require("/test/data-hub-test-helper.sjs");
-import esMappingLib from "/data-hub/5/builtins/steps/mapping/entity-services/lib.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const esMappingLib = mjsProxy.requireMjsModule("/data-hub/5/builtins/steps/mapping/entity-services/lib.mjs");
 const datahub = DataHubSingleton.instance();
 let assertions = [];
 

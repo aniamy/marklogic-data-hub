@@ -16,13 +16,13 @@
 'use strict';
 
 import httpUtils from "/data-hub/5/impl/http-utils.mjs";
+import Perf from "/data-hub/5/impl/perf.mjs";
 
 const cachedModules = {};
 
 export default class StepDefinition {
 
   constructor(config = null) {
-    const Perf = require("/data-hub/5/impl/perf.sjs");
     this.performance = new Perf(config);
   }
 

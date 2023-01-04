@@ -19,8 +19,10 @@
  * Contains helper functions for simplifying mastering unit tests.
  */
 
-import matching from "/data-hub/5/builtins/steps/mastering/default/matching.mjs";
-import StepExecutionContext from "/data-hub/5/flow/stepExecutionContext.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const matching = mjsProxy.requireMjsModule("/data-hub/5/builtins/steps/mastering/default/matching.mjs");
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const StepExecutionContext = mjsProxy.requireMjsModule("/data-hub/5/flow/stepExecutionContext.mjs");
 const test = require("/test/test-helper.xqy");
 
 // Prefixed with "/zzz" so it's almost certainly the last one in a match summary doc

@@ -1,5 +1,7 @@
-import config from "/com.marklogic.hub/config.mjs";
-import DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const config = mjsProxy.requireMjsModule("/com.marklogic.hub/config.mjs");
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const DataHubSingleton = mjsProxy.requireMjsModule("/data-hub/5/datahub-singleton.mjs");
 const lib = require("lib/lib.sjs");
 const test = require("/test/test-helper.xqy");
 

@@ -18,8 +18,10 @@
 import consts from "/data-hub/5/impl/consts.mjs";
 import httpUtils from "/data-hub/5/impl/http-utils.mjs";
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
-const json = require('/MarkLogic/json/json.xqy');
-const sem = require("/MarkLogic/semantics.xqy");
+import sjsProxy from "/data-hub/core/util/sjsProxy";
+
+const json = sjsProxy.requireSjsModule('/MarkLogic/json/json.xqy');
+const semXqy = sjsProxy.requireSjsModule("/MarkLogic/semantics.xqy", "http://marklogic.com/semantics");
 
   /**
    : Determine the input document type from the root node.
@@ -257,7 +259,7 @@ const sem = require("/MarkLogic/semantics.xqy");
   }
 
   function tripleToXml(triple) {
-    return sem.rdfSerialize(triple, 'triplexml').xpath('*');
+    return semXqy.rdfSerialize(triple, 'triplexml').xpath('*');
   }
 
   function normalizeTriple(triple) {
@@ -265,6 +267,14 @@ const sem = require("/MarkLogic/semantics.xqy");
       return triple;
     } else if (triple instanceof ObjectNode) {
       return sem.triple(triple.toObject());
+    } else if (triple instanceof ArrayNode) {
+      return normalizeTriple(triple.xpath("./node()"));
+    } if (triple[Symbol.iterator]) {
+      const triples = [];
+      for (const t of triple) {
+        triples.push(normalizeTriple(t));
+      }
+      return triples.length <= 1 ? triples[0]: triples;
     } else {
       return sem.triple(triple);
     }
@@ -631,7 +641,7 @@ const sem = require("/MarkLogic/semantics.xqy");
   }
 
   function normalizeValuesInNode(node) {
-    if (node instanceof ObjectNode || node instanceof ArrayNode) {
+    if (node instanceof ObjectNode || node instanceof ArrayNode || xdmp.nodeKind(node) === "array") {
       return node.toObject();
     } else if (node instanceof Element) {
       return node.xpath('*');

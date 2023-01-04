@@ -1,5 +1,6 @@
 const test = require("/test/test-helper.xqy");
-import graphUtils from "/data-hub/5/impl/graph-utils.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const graphUtils = mjsProxy.requireMjsModule("/data-hub/5/impl/graph-utils.mjs");
 
 function invoke(module, args) {
   return fn.head(xdmp.invoke("/data-hub/5/data-services/graph/" + module, args));

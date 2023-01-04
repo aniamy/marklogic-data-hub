@@ -1,5 +1,7 @@
-import Mergeable from "/data-hub/5/mastering/merging/mergeable.mjs";
-import hubUtils from "/data-hub/5/impl/hub-utils.sjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const Mergeable = mjsProxy.requireMjsModule("/data-hub/5/mastering/merging/mergeable.mjs");
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const hubUtils = mjsProxy.requireMjsModule("/data-hub/5/impl/hub-utils.mjs");
 const test = require("/test/test-helper.xqy");
 
 function testMergeableClass() {

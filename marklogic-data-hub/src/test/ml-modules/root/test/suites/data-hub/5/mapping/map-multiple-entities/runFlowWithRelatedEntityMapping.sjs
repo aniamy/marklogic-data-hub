@@ -1,8 +1,10 @@
-import DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const DataHubSingleton = mjsProxy.requireMjsModule("/data-hub/5/datahub-singleton.mjs");
 const test = require("/test/test-helper.xqy");
 const hubTest = require("/test/data-hub-test-helper.sjs");
 const datahub = DataHubSingleton.instance();
-import hubUtils from "/data-hub/5/impl/hub-utils.sjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const hubUtils = mjsProxy.requireMjsModule("/data-hub/5/impl/hub-utils.mjs");
 
 let assertions = [];
 

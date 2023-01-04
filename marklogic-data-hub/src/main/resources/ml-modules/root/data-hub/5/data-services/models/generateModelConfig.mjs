@@ -18,8 +18,10 @@
 xdmp.securityAssert("http://marklogic.com/data-hub/privileges/read-entity-model", "execute");
 
 import consts from "/data-hub/5/impl/consts.mjs";
-const hent = require("/data-hub/5/impl/hub-entities.xqy");
+import sjsProxy from "/data-hub/core/util/sjsProxy.mjs";
 import hubEs from "/data-hub/5/impl/hub-es.mjs";
+
+const hent = sjsProxy.requireSjsModule("/data-hub/5/impl/hub-entities.xqy", "");
 
 
 const result = {

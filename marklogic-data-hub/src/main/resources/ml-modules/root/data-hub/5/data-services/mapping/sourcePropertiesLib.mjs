@@ -98,4 +98,4 @@ function isArray(value) {
   return value && value.hasOwnProperty('0') && typeof value !== 'string';
 }
 
-exports.buildSourceProperties = buildSourceProperties;
+export default { buildSourceProperties };

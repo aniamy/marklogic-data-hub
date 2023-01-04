@@ -18,11 +18,14 @@
 
 import consts from "/data-hub/5/impl/consts.mjs"
 import entityLib from "/data-hub/5/impl/entity-lib.mjs"
-import entitySearchLib from "/data-hub/5/entities/entity-search-lib.mjs"
+import entitySearchLib from "/data-hub/5/entities/entity-search-lib"
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs"
-const sem = require("/MarkLogic/semantics.xqy");
-const op = require('/MarkLogic/optic');
+import op from '/MarkLogic/optic';
+import sjsProxy from "/data-hub/core/util/sjsProxy";
 import {getPredicatesByModel} from "./entity-lib.mjs"
+
+const sem = sjsProxy.requireSjsModule("/MarkLogic/semantics.xqy");
+
 const hubCentralConfig = cts.doc("/config/hubCentral.json");
 const graphDebugTraceEnabled = xdmp.traceEnabled(consts.TRACE_GRAPH_DEBUG);
 const graphTraceEnabled = xdmp.traceEnabled(consts.TRACE_GRAPH) || graphDebugTraceEnabled;

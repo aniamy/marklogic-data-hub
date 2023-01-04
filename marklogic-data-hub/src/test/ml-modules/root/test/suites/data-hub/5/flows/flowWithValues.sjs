@@ -1,5 +1,6 @@
 const test = require("/test/test-helper.xqy");
-import DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const DataHubSingleton = mjsProxy.requireMjsModule("/data-hub/5/datahub-singleton.mjs");
 const datahub = DataHubSingleton.instance();
 
 function flowWorksWithValues() {

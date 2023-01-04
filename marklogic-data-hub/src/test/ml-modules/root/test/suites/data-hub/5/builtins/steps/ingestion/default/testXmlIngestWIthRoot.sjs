@@ -1,4 +1,6 @@
-import ing from "/data-hub/5/builtins/steps/ingestion/default/main.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const ing = mjsProxy.requireMjsModule("/data-hub/5/builtins/steps/ingestion/default/main.mjs");
+
 const test = require("/test/test-helper.xqy");
 let assertions = [];
 

@@ -15,7 +15,7 @@
 */
 var trace = require("/data-hub/4/impl/trace-lib.xqy");
 
-export function transform(context, params, content) {
+function transform(context, params, content) {
   var response = content.toObject();
 
   for (var i = 0; i < response.results.length; i++) {
@@ -26,3 +26,5 @@ export function transform(context, params, content) {
   }
   return response;
 }
+
+exports.transform = transform;

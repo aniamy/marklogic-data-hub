@@ -339,10 +339,8 @@ export default {
   getJobDocsForFlows,
   getRequiredJob,
   saveNewJob,
-  deleteJobs,
-  updateJob
-/*  deleteJobs:module.amp(deleteJobs),
-  updateJob:module.amp(updateJob)*/
+  deleteJobs: import.meta.amp(deleteJobs),
+  updateJob: import.meta.amp(updateJob)
 }
 
 

@@ -1,4 +1,5 @@
-import merging from "/data-hub/5/builtins/steps/mastering/default/merging.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const merging = mjsProxy.requireMjsModule("/data-hub/5/builtins/steps/mastering/default/merging.mjs");
 const test = require("/test/test-helper.xqy");
 
 let results = [

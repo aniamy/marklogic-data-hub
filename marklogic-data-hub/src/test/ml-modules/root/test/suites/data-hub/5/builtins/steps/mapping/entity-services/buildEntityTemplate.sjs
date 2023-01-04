@@ -1,4 +1,5 @@
-import esMappingLib from "/data-hub/5/builtins/steps/mapping/entity-services/lib.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const esMappingLib = mjsProxy.requireMjsModule("/data-hub/5/builtins/steps/mapping/entity-services/lib.mjs");
 const test = require("/test/test-helper.xqy");
 
 function entityNameDoesntExist() {

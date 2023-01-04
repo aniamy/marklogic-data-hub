@@ -3,10 +3,12 @@ import defaultLib from "/data-hub/5/builtins/steps/mapping/default/lib.mjs";
 import flowUtils from "/data-hub/5/impl/flow-utils.mjs";
 import lib from "/data-hub/5/builtins/steps/mapping/entity-services/lib.mjs";
 import mappingLibrary from "/data-hub/5/mapping/mapping-lib.mjs";
-const entityValidationLib = require('entity-validation-lib.sjs');
-const xqueryLib = require('xquery-lib.xqy')
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
 import httpUtils from "/data-hub/5/impl/http-utils.mjs";
+import sjsProxy from "/data-hub/core/util/sjsProxy.mjs";
+
+import entityValidationLib from 'entity-validation-lib.mjs';
+const xqueryLib = sjsProxy.requireSjsModule('/data-hub/5/builtins/steps/mapping/entity-services/xquery-lib.xqy')
 
 // caching mappings in key to object since tests can have multiple mappings run in same transaction
 var mappings = {};

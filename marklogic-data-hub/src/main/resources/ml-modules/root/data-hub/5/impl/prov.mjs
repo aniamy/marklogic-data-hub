@@ -18,9 +18,11 @@ import consts from "/data-hub/5/impl/consts.mjs";
 import config from "/com.marklogic.hub/config.mjs";
 import hubES from "/data-hub/5/impl/hub-es.mjs";
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
-const ps = require('/MarkLogic/provenance');
-const op = require('/MarkLogic/optic');
-const ProvenanceWriteQueue = require("/data-hub/5/provenance/provenanceWriteQueue.sjs");
+import op from '/MarkLogic/optic';
+import sjsProxy from "/data-hub/core/util/sjsProxy";
+
+const ps = sjsProxy.requireSjsModule("/MarkLogic/provenance.xqy", "http://marklogic.com/provenance-services");
+import ProvenanceWriteQueue from "/data-hub/5/provenance/provenanceWriteQueue.mjs";
 
 const provenanceWriteQueue = new ProvenanceWriteQueue();
 
@@ -768,6 +770,6 @@ export default {
   createStepPropertyAlterationRecord,
   createStepPropertyRecords,
   createStepRecord,
-  //findProvenance:module.amp((findProvenance))
+  findProvenance: import.meta.amp(findProvenance)
 };
 

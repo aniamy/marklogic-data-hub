@@ -1,5 +1,6 @@
 'use strict';
-import DataHubSingleton from "/data-hub/5/datahub-singleton.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const DataHubSingleton = mjsProxy.requireMjsModule("/data-hub/5/datahub-singleton.mjs");
 const test = require("/test/test-helper.xqy");
 const hubTest = require("/test/data-hub-test-helper.sjs");
 

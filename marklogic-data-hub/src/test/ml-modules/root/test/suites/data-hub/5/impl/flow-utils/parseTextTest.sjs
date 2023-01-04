@@ -1,6 +1,7 @@
 const test = require("/test/test-helper.xqy");
 
-import flowUtils from "/data-hub/5/impl/flow-utils.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const flowUtils = mjsProxy.requireMjsModule("/data-hub/5/impl/flow-utils.mjs");
 
 const assertions = [];
 

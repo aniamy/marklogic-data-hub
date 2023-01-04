@@ -15,8 +15,10 @@
  */
 'use strict';
 
-const previewMatchingActivityLib = require("/data-hub/5/mastering/preview-matching-activity-lib.xqy");
 import hubUtils from "/data-hub/5/impl/hub-utils.mjs";
+import sjsProxy from "/data-hub/core/util/sjsProxy";
+
+const previewMatchingActivityLib = sjsProxy.requireSjsModule("/data-hub/5/mastering/preview-matching-activity-lib.xqy");
 
 const stepName = external.stepName;
 const uris = external.uris;

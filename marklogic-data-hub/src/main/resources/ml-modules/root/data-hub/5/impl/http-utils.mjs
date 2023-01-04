@@ -24,7 +24,7 @@ const ERROR_CODE = "RESTAPI-SRVEXERR";
  * @param message
  */
 function throwBadRequest(message) {
-  fn.error(null, ERROR_CODE, Sequence.from([400, message]));
+  throwBadRequestWithArray([message]);
 }
 
 function throwBadRequestWithArray(args){

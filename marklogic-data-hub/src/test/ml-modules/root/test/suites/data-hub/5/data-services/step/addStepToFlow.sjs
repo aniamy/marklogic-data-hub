@@ -1,6 +1,7 @@
 'use strict';
 
-import Artifacts from "/data-hub/5/artifacts/core.sjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const Artifacts = mjsProxy.requireMjsModule("/data-hub/5/artifacts/core.mjs");
 const flowService = require("../lib/flowService.sjs");
 const stepService = require("../lib/stepService.sjs");
 const test = require("/test/test-helper.xqy");

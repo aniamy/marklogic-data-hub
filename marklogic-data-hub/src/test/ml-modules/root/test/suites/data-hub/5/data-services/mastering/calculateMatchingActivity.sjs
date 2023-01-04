@@ -1,6 +1,7 @@
 const test = require("/test/test-helper.xqy");
 
-import cma from "/data-hub/5/data-services/mastering/calculateMatchingActivityLib.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const cma = mjsProxy.requireMjsModule("/data-hub/5/data-services/mastering/calculateMatchingActivityLib.mjs");
 
 
 const step1 =

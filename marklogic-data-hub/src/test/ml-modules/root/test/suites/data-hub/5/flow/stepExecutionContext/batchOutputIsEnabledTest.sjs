@@ -13,8 +13,8 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
-import StepExecutionContext from "/data-hub/5/flow/stepExecutionContext.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const StepExecutionContext = mjsProxy.requireMjsModule("/data-hub/5/flow/stepExecutionContext.mjs");
 const test = require("/test/test-helper.xqy");
 
 const fakeFlow = {

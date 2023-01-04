@@ -2,7 +2,8 @@
 
 const test = require("/test/test-helper.xqy");
 const utils = require('/test/suites/data-hub/5/data-services/lib/mappingService.sjs').DocumentForTestingUtils;
-import xmlToJson from "/data-hub/5/data-services/mapping/xmlToJsonForMapping.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const xmlToJson = mjsProxy.requireMjsModule("/data-hub/5/data-services/mapping/xmlToJsonForMapping.mjs");
 
 const assertions = [];
 

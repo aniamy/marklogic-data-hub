@@ -7,12 +7,15 @@ const common = require("/data-hub/5/mastering/common.sjs");
  */
 import hubUtil from '/data-hub/5/impl/hub-utils.mjs';
 import consts from "../../impl/consts.mjs";
-const sem = require("/MarkLogic/semantics.xqy");
+import sjsProxy from "/data-hub/core/util/sjsProxy.mjs";
+
+const semXqy = sjsProxy.requireSjsModule("/MarkLogic/semantics.xqy", "http://marklogic.com/semantics");
+
 const mergingDebugTraceEnabled = xdmp.traceEnabled(consts.TRACE_MERGING_DEBUG);
 const mergingTraceEnabled = xdmp.traceEnabled(consts.TRACE_MERGING) || mergingDebugTraceEnabled;
 const mergingTraceEvent = xdmp.traceEnabled(consts.TRACE_MERGING) ? consts.TRACE_MERGING : consts.TRACE_MERGING_DEBUG;
-const rdfType = sem.curieExpand("rdf:type");
-const rdfsIsDefinedBy = sem.curieExpand("rdfs:isDefinedBy");
+const rdfType = semXqy.curieExpand("rdf:type");
+const rdfsIsDefinedBy = semXqy.curieExpand("rdfs:isDefinedBy");
 
 
 export default class Mergeable {
@@ -532,7 +535,7 @@ export default class Mergeable {
     nodeBuilder.endElement();
     nodeBuilder.startElement("es:triples", "http://marklogic.com/entity-services");
     if (triples) {
-      for (const tripleNode of sem.rdfSerialize(triples, ["triplexml"]).xpath("descendant-or-self::sem:triple", {sem: "http://marklogic.com/semantics"})) {
+      for (const tripleNode of semXqy.rdfSerialize(triples, ["triplexml"]).xpath("descendant-or-self::sem:triple", {sem: "http://marklogic.com/semantics"})) {
         nodeBuilder.addNode(tripleNode);
       }
     }

@@ -1,8 +1,11 @@
 declareUpdate();
 
-import config from "/com.marklogic.hub/config.mjs";
-import entityLib from "/data-hub/5/impl/entity-lib.mjs";
-import hubUtils from "/data-hub/5/impl/hub-utils.sjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const config = mjsProxy.requireMjsModule("/com.marklogic.hub/config.mjs");
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const entityLib = mjsProxy.requireMjsModule("/data-hub/5/impl/entity-lib.mjs");
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const hubUtils = mjsProxy.requireMjsModule("/data-hub/5/impl/hub-utils.mjs");
 const test = require("/test/test-helper.xqy");
 
 const hubCentralConfig = {

@@ -1,4 +1,5 @@
-import graphUtils from "/data-hub/5/impl/graph-utils.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const graphUtils = mjsProxy.requireMjsModule("/data-hub/5/impl/graph-utils.mjs");
 const test = require("/test/test-helper.xqy");
 
 function invoke(module, args) {

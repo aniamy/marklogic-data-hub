@@ -1,4 +1,5 @@
-import flowRunner from "/data-hub/5/flow/flowRunner.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const flowRunner = mjsProxy.requireMjsModule("/data-hub/5/flow/flowRunner.mjs");
 const test = require("/test/test-helper.xqy");
 
 // Ignoring context, since that's tested in copyJsonObjectValue.sjs

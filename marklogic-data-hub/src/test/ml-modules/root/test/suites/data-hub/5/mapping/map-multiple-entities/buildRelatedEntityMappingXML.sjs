@@ -1,4 +1,5 @@
-import mappingLib from "/data-hub/5/builtins/steps/mapping/entity-services/lib.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const mappingLib = mjsProxy.requireMjsModule("/data-hub/5/builtins/steps/mapping/entity-services/lib.mjs");
 const test = require("/test/test-helper.xqy");
 const mappingStep = xdmp.toJSON(
   {
@@ -194,7 +195,8 @@ assertions.push(
 
 let expectedFullTemplate = tidyXML(`
 <m:mapping xmlns:m="http://marklogic.com/entity-services/mapping" xmlns:map="http://marklogic.com/xdmp/map" xmlns:instance="http://marklogic.com/datahub/entityInstance" xmlns:ns1="http://ns1" xmlns:ns2="http://ns2">
-   ${mappingLib.retrieveFunctionImports()}
+   ${mappingLib.retrieveFunctionconst mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+consts()}
    <m:param name="URI" />
    <m:entity name="mapping0-Customer">
       <Customer xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

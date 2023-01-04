@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 'use strict';
-import temporal from "/MarkLogic/temporal.xqy";
+import sjsProxy from "/data-hub/core/util/sjsProxy";
+
+const temporal = sjsProxy.requireSjsModule("/MarkLogic/temporal.xqy", "http://marklogic.com/xdmp/temporal");
 
 
 

@@ -1,5 +1,6 @@
 const test = require("/test/test-helper.xqy");
-import jobs from "/data-hub/5/impl/jobs.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const jobs = mjsProxy.requireMjsModule("/data-hub/5/impl/jobs.mjs");
 
 function getJob(jobId) {
     return fn.head(

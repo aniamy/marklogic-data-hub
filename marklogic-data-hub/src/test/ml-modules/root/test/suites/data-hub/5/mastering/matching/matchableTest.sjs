@@ -1,4 +1,5 @@
-import Matchable from "/data-hub/5/mastering/matching/matchable.mjs";
+const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
+const Matchable = mjsProxy.requireMjsModule("/data-hub/5/mastering/matching/matchable.mjs");
 const test = require("/test/test-helper.xqy");
 
 function testMatchableClass() {
