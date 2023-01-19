@@ -7,7 +7,7 @@ function invoke(module, args) {
 }
 
 function searchNodes(queryOptions) {
-  return invoke("searchNodes.sjs", {query: JSON.stringify(queryOptions), start: 0, limit: 20});
+  return invoke("searchNodes.mjs", {query: JSON.stringify(queryOptions), start: 0, limit: 20});
 }
 
 let assertions = [

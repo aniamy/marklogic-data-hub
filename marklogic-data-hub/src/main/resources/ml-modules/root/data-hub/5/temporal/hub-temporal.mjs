@@ -24,7 +24,7 @@ const temporal = sjsProxy.requireSjsModule("/MarkLogic/temporal.xqy", "http://ma
     return temporal.collections();
   }
 
-  export  {
+  export default {
       getTemporalCollections
   }
 

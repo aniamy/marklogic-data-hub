@@ -6,7 +6,7 @@ function invoke(module, args) {
   return fn.head(xdmp.invoke("/data-hub/5/data-services/graph/" + module, args));
 }
 function getEntitiesWithRelatedConcepts() {
-  return invoke("entitiesWithConceptsTypes.sjs", {});
+  return invoke("entitiesWithConceptsTypes.mjs", {});
 }
 
 let assertions = [

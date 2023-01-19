@@ -195,8 +195,7 @@ assertions.push(
 
 let expectedFullTemplate = tidyXML(`
 <m:mapping xmlns:m="http://marklogic.com/entity-services/mapping" xmlns:map="http://marklogic.com/xdmp/map" xmlns:instance="http://marklogic.com/datahub/entityInstance" xmlns:ns1="http://ns1" xmlns:ns2="http://ns2">
-   ${mappingLib.retrieveFunctionconst mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
-consts()}
+   ${mappingLib.retrieveFunctionImports()}
    <m:param name="URI" />
    <m:entity name="mapping0-Customer">
       <Customer xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

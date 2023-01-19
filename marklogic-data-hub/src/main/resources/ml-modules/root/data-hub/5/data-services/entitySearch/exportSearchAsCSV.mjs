@@ -71,14 +71,16 @@ const filterObjectAndArrayTypeProperties = (name) => {
   return filteredProperties;
 };
 
-var viewName;
-var schemaName;
-var limit;
-var structuredQuery;
-var searchText;
-var queryOptions;
-var sortOrder;
-var columns;
+
+
+var viewName = external.viewName;
+var schemaName = external.schemaName;
+var limit = external.limit;
+var structuredQuery = external.structuredQuery;
+var searchText = external.searchText;
+var queryOptions = external.queryOptions;
+var sortOrder = external.sortOrder;
+var columns = external.columns;
 
 structuredQuery = fn.head(xdmp.unquote(structuredQuery)).root;
 searchText = searchText || '';

@@ -46,6 +46,6 @@ In every merge rule for the property ${warningPropertiesStr} set Max Values or M
     }
 }
 
-module.exports = {
+export default {
     propertiesWarning
 };

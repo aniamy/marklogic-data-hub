@@ -641,8 +641,8 @@ const semXqy = sjsProxy.requireSjsModule("/MarkLogic/semantics.xqy", "http://mar
   }
 
   function normalizeValuesInNode(node) {
-    if (node instanceof ObjectNode || node instanceof ArrayNode || xdmp.nodeKind(node) === "array") {
-      return node.toObject();
+    if (node instanceof ObjectNode || node instanceof ArrayNode) {
+      return node;
     } else if (node instanceof Element) {
       return node.xpath('*');
     }

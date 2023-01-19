@@ -206,7 +206,8 @@ function getErrorMessage(e) {
 }
 
 function requireFunction(modulePath, functionName) {
-  return sjsProxy.requireModule(modulePath)[functionName];
+  // return sjsProxy.requireModule(modulePath)[functionName];
+    return sjsProxy.requireSjsModule(modulePath);
 }
 
 export default {

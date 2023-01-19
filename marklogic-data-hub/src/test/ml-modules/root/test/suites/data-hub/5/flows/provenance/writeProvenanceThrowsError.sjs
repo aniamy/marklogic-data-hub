@@ -2,7 +2,6 @@ const test = require("/test/test-helper.xqy");
 const hubTest = require("/test/data-hub-test-helper.xqy");
 const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
 const flowProvenance = mjsProxy.requireMjsModule("/data-hub/5/flow/flowProvenance.mjs");
-const mjsProxy = require("/data-hub/core/util/mjsProxy.sjs");
 const StepExecutionContext = mjsProxy.requireMjsModule("/data-hub/5/flow/stepExecutionContext.mjs");
 
 const assertions = [];

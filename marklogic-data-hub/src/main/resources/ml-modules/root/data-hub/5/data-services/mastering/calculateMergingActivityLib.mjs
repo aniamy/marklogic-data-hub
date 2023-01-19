@@ -47,6 +47,6 @@ function internalCalculateMergingActivity(step)
         sourceNames
     };
 }
-module.exports = {
+export default  {
     calculateMergingActivity
 };
