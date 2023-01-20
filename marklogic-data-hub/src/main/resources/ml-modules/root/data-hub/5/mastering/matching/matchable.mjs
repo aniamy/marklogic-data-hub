@@ -521,7 +521,7 @@ class MatchRulesetDefinition {
     if (!this._cachedCtsQueries[uri]) {
       const queries = [];
       const model = this.matchable.model();
-      const groupQueries = hubUtils.requireFunction("/data-hub/5/mastering/matching/matcher.sjs", "groupQueries");
+      const groupQueries = hubUtils.requireFunction("/data-hub/5/mastering/matching/matcher.mjs", "groupQueries");
       let pos = 1;
       for (const matchRule of this.matchRuleset.matchRules) {
         if (!matchRule.node) {
@@ -542,7 +542,7 @@ class MatchRulesetDefinition {
       if (matchingDebugTraceEnabled) {
         xdmp.trace(consts.TRACE_MATCHING_DEBUG, `cts.query for ${xdmp.describe(documentNode)} with match ruleset ${this.name()} before optimization is ${xdmp.describe(queries)}`);
       }
-      const optimizeCtsQueries = hubUtils.requireFunction("/data-hub/5/mastering/matching/matcher.sjs", "optimizeCtsQueries");
+      const optimizeCtsQueries = hubUtils.requireFunction("/data-hub/5/mastering/matching/matcher.mjs", "optimizeCtsQueries");
       const optimizedCtsQuery = optimizeCtsQueries(groupQueries(queries, cts.andQuery));
       if (matchingTraceEnabled) {
         xdmp.trace(matchingTraceEvent, `cts.query for ${xdmp.describe(documentNode)} with match ruleset ${this.name()} returned ${xdmp.describe(optimizedCtsQuery, Sequence.from([]), Sequence.from([]))}`);

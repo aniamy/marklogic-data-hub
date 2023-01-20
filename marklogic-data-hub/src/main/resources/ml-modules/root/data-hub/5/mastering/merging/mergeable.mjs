@@ -1,4 +1,4 @@
-const common = require("/data-hub/5/mastering/common.sjs");
+import common from "/data-hub/5/mastering/common.mjs";
 
 'use strict';
 

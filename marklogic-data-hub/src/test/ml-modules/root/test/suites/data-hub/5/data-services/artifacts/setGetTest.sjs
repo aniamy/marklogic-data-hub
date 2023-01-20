@@ -10,7 +10,9 @@ function invokeSetService(artifactType, artifactName, artifact) {
 }
 
 function insertValidArtifact() {
+  console.log("PRUEBAAAAAA:");
   const result = invokeSetService('ingestion','validArtifact', { name: 'validArtifact', sourceFormat: 'xml', targetFormat: 'json'});
+  console.log("result insertValidArtifact: " + JSON.stringify(result));
   return [
     test.assertEqual("validArtifact", result.name),
     test.assertEqual("xml", result.sourceFormat),
@@ -20,7 +22,9 @@ function insertValidArtifact() {
 }
 
 function getArtifact() {
+  console.log("PRUEBAAAAAA:");
   const result = Artifacts.getArtifact("ingestion", "validArtifact");
+  console.log("result getArtifact: " + JSON.stringify(result));
   return [
     test.assertEqual("validArtifact", result.name),
     test.assertEqual("xml", result.sourceFormat),
