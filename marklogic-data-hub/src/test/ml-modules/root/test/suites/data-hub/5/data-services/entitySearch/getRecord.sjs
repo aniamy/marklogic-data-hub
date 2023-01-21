@@ -1,4 +1,4 @@
-const entitySearchService = require("/test/suites/data-hub/5/data-services/lib/entitySearchService.sjs");
+const entitySearchService = require("/test/suites/data-hub/5/data-services/lib/entitySearchService.mjs");
 const test = require("/test/test-helper.xqy");
 
 const assertions = [];
