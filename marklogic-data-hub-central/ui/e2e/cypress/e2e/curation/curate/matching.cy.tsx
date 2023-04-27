@@ -201,7 +201,7 @@ describe("Matching", () => {
     //multiSlider.getHandleName("customerId").should("be.visible");
   });
 
-  xit("When we work on the spike story to update multi-slider componenens using cypress", () => {
+  it.skip("When we work on the spike story to update multi-slider components using cypress", () => {
     multiSlider.getHandleName("customerId").trigger("mousedown", {force: true});
     cy.findByTestId("ruleSet-slider-ticks").find(`div[style*="left: 19.1919%;"]`).trigger("mousemove", {force: true});
     multiSlider.getHandleName("customerId").trigger("mouseup", {force: true});
@@ -240,7 +240,7 @@ describe("Matching", () => {
     multiSlider.getRulesetHandleNameAndType("email", "Exact").should("exist");
   });
 
-  xit("When we work on the spike story to update multi-slider componenens using cypress", () => {
+  xit("When we work on the spike story to update multi-slider components using cypress", () => {
     multiSlider.getHandleName("email").trigger("mousedown", {force: true});
     cy.findByTestId("ruleSet-slider-ticks").find(`div[style*="left: 30.303%;"]`).trigger("mousemove", {force: true});
     multiSlider.getHandleName("email").trigger("mouseup", {force: true});
@@ -258,7 +258,7 @@ describe("Matching", () => {
     multiSlider.getRulesetHandleNameAndType("shipping.street", "Exact").should("be.visible");
   });
 
-  xit("When we work on the spike story to update multi-slider componenens using cypress", () => {
+  xit("When we work on the spike story to update multi-slider components using cypress", () => {
     multiSlider.getHandleName("shipping.street").trigger("mousedown", {force: true});
     cy.findByTestId("ruleSet-slider-ticks").find(`div[style*="left: 30.303%;"]`).trigger("mousemove", {force: true});
     multiSlider.getHandleName("shipping.street").trigger("mouseup", {force: true});
@@ -624,12 +624,6 @@ describe("Matching", () => {
     rulesetSingleModal.clearValuesToIgnoreList();
     rulesetSingleModal.saveModalButton("confirm-list-ignore");
 
-    // Vales to ignore name must start with a letter
-    rulesetSingleModal.addValuesToListToIgnore("1Word1");
-    cy.findByText("Names must start with a letter and can contain letters, numbers, hyphens, and underscores.");
-    rulesetSingleModal.clearValuesToIgnoreList();
-    rulesetSingleModal.saveModalButton("confirm-list-ignore");
-
     // Create new List
     rulesetSingleModal.addListTitle("values-to-ignore-input", "TitleList1");
     rulesetSingleModal.addValuesToListToIgnore("Word1");
@@ -643,7 +637,7 @@ describe("Matching", () => {
     rulesetSingleModal.createNewList();
     rulesetSingleModal.addListTitle("values-to-ignore-input", "TitleList1");
     rulesetSingleModal.addValuesToListToIgnore("Word1");
-    rulesetSingleModal.addValuesToListToIgnore("Word2");
+    rulesetSingleModal.addValuesToListToIgnore("92");
     rulesetSingleModal.saveModalButton("confirm-list-ignore");
 
     cy.findByText((_content, node) => {
@@ -664,7 +658,7 @@ describe("Matching", () => {
 
     // Name List must start with a letter
     rulesetSingleModal.clearListTitle("values-to-ignore-input");
-    rulesetSingleModal.saveModalButton("confirm-list-ignore"); // change error text
+    rulesetSingleModal.saveModalButton("confirm-list-ignore");
     rulesetSingleModal.addListTitle("values-to-ignore-input", "1TitleList1");
     rulesetSingleModal.saveModalButton("confirm-list-ignore");
     cy.findByText("Names must start with a letter and can contain letters, numbers, hyphens, and underscores.");
@@ -787,6 +781,50 @@ describe("Matching", () => {
     rulesetSingleModal.saveModalButton("Yes");
     rulesetSingleModal.selectValuesToIgnoreInput();
     rulesetSingleModal.findText("swim1").should("not.exist");
+  });
+
+  it("Tests matching preview with values to ignore", () => {
+    cy.visit("/tiles/curate");
+    cy.waitForAsyncRequest();
+    curatePage.toggleEntityTypeId("Person");
+    curatePage.selectMatchTab("Person");
+    curatePage.openStepDetails("match-person");
+    matchingStepDetail.getAllDataRadio().click();
+    matchingStepDetail.getTestMatchUriButton();
+    cy.waitForAsyncRequest();
+    cy.wait(1000);
+    cy.findByLabelText("noMatchedDataView").should("not.exist");
+    let mergeResults = cy.get(`[id="testMatchedPanel"]`).first();
+    mergeResults.contains("Match - merge").should("have.length.gt", 0);
+    mergeResults.findByText("4 pair matches").should("have.length.gt", 0);
+    multiSlider.enableEdit("ruleset");
+    cy.findByTestId("ruleset lname - Exact").click();
+    cy.wait(500);
+    rulesetSingleModal.selectValuesToIgnoreInput();
+    rulesetSingleModal.createNewList();
+    rulesetSingleModal.addValuesToListToIgnore("Taylor");
+    rulesetSingleModal.addListTitle("values-to-ignore-input", "ignore-lastname");
+    rulesetSingleModal.saveModalButton("confirm-list-ignore");
+
+    rulesetSingleModal.selectValuesToIgnoreInput();
+    rulesetSingleModal.selectItemFromList("ignore-lastname");
+    rulesetSingleModal.saveButton().click();
+    cy.waitForAsyncRequest();
+
+    matchingStepDetail.getAllDataRadio().click();
+    matchingStepDetail.getTestMatchUriButton();
+    cy.waitForAsyncRequest();
+    cy.wait(1000);
+    cy.findByLabelText("noMatchedDataView").should("not.exist");
+    mergeResults = cy.get(`[id="testMatchedPanel"]`).first();
+    mergeResults.contains("Match - merge").should("have.length.gt", 0);
+    mergeResults.findByText("3 pair matches").should("have.length.gt", 0);
+
+    cy.findByTestId("ruleset lname - Exact").click();
+    cy.wait(500);
+    cy.get(`[id="valuesToIgnore"]`).type("{backspace}");
+    rulesetSingleModal.selectValuesToIgnoreInput();
+    rulesetSingleModal.saveButton().click();
   });
 
   it("Check collection Typeahead request when source  database is changed", () => {

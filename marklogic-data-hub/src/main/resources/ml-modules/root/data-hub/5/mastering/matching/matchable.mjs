@@ -373,6 +373,10 @@ class MatchRulesetDefinition {
     return !!this.matchRuleset.reduce;
   }
 
+  matchRules() {
+    return this.matchRuleset.matchRules;
+  }
+
   _valueFunction(matchRule, model) {
     if (!matchRule._valueFunction) {
       matchRule._valueFunction = (documentNode) => {
