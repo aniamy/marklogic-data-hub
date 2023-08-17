@@ -674,7 +674,7 @@ class MatchRulesetDefinition {
       if (query) {
         hashes = [...matchingXqy.queryToHashes(query, this.fuzzyMatch())];
       }
-      this._cachedQueryHashes.set(uri, new Set(hashes));
+      this._cachedQueryHashes.set(uri, hashes);
     }
     return this._cachedQueryHashes.get(uri);
   }

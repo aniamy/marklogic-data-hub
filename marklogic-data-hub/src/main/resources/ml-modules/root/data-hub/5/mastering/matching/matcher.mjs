@@ -57,7 +57,7 @@ function gatherThresholdQueryFunctions(thresholdDefinitions) {
 
 function addHashesToTripleArray(contentObject, matchRulesetDefinitions, triplesByUri, inMemoryTriples) {
   for (const matchRuleset of matchRulesetDefinitions) {
-    const queryHashes = matchRuleset.queryHashes(contentObject, matchRuleset.fuzzyMatch());
+    const queryHashes = matchRuleset.queryHashes(contentObject);
     for (const queryHash of queryHashes) {
       let uriTriples = triplesByUri.get(contentObject.uri);
       if (!uriTriples) {
@@ -67,13 +67,14 @@ function addHashesToTripleArray(contentObject, matchRulesetDefinitions, triplesB
       const uriToHashTriple = sem.triple(contentObject.uri, queryHashPredicate, queryHash);
       const hashToRulesetTriple = sem.triple(queryHash, hashBelongToPredicate, matchRuleset.name());
       inMemoryTriples.push(uriToHashTriple, hashToRulesetTriple);
-      uriTriples.push(uriToHashTriple, hashToRulesetTriple);
+      //uriTriples.push(uriToHashTriple, hashToRulesetTriple);
     }
   }
 }
 
 function getMatchingURIs(matchable, contentObject, baselineQuery, filterQuery, thresholdQueryFunctions) {
   let allMatchingBatchUris = [];
+
   for (const thresholdQueryFunction of thresholdQueryFunctions) {
     const thresholdQuery = thresholdQueryFunction(contentObject);
     if (!thresholdQuery) {
