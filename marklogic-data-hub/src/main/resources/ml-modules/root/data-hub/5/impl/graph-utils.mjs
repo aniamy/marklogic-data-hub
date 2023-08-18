@@ -71,7 +71,7 @@ function getEntityNodesWithRelated(entityTypeIRIs, relatedEntityTypeIRIs, predic
                  {
                    {
                      # The primary entity query
-                     SELECT ?docURI ?subjectIRI (MIN(?label) AS ?subjectLabel) ?predicateIRI (MIN(?anyPredicateLabel) AS ?predicateLabel) (COUNT(DISTINCT(?objectIdentifier)) AS ?nodeCount) (MIN(?objectIRI) AS ?firstObjectIRI) WHERE {
+                     SELECT ?subjectIRI ?docURI (MIN(?label) AS ?subjectLabel) ?predicateIRI (MIN(?anyPredicateLabel) AS ?predicateLabel) (?objectIdentifier AS ?objectDocURI) WHERE {
                         ?subjectIRI rdf:type $entityTypeIRIs;
                           rdfs:isDefinedBy ?docURI.
                         FILTER (?docURI = $docURIs)
@@ -96,7 +96,7 @@ function getEntityNodesWithRelated(entityTypeIRIs, relatedEntityTypeIRIs, predic
                             BIND(IF(BOUND(?objectDocURI), ?objectDocURI, ?objectIRI) AS ?objectIdentifier)
                         }
                       }
-                      GROUP BY ?docURI ?subjectIRI ?predicateIRI
+                      GROUP BY ?docURI ?subjectIRI ?predicateIRI ?objectIdentifier
                     }
                     OPTIONAL {
                       ?firstObjectIRI rdfs:isDefinedBy ?firstDocURI.
@@ -106,7 +106,7 @@ function getEntityNodesWithRelated(entityTypeIRIs, relatedEntityTypeIRIs, predic
                   } UNION {
                        # The matching concepts
                      {
-                      SELECT ?subjectIRI ?predicateIRI ?firstObjectIRI ?docURI ?conceptClassName (MIN(?anyConceptLabel) AS ?conceptLabel)  WHERE {
+                      SELECT ?subjectIRI ?docURI ?predicateIRI ?firstObjectIRI ?conceptClassName (MIN(?anyConceptLabel) AS ?conceptLabel)  WHERE {
                               ?subjectIRI rdf:type $entityTypeIRIs;
                                 ?predicateIRI  ?firstObjectIRI;
                                 rdfs:isDefinedBy ?docURI.
@@ -145,51 +145,14 @@ function getAllEntityIds() {
   return _allEntityIds;
 }
 
-function getEntityNodes(documentUri, predicateIRI, lastObjectIRI, limit) {
+function getEntityNodesByConcept(conceptIRI, limit) {
   if (graphTraceEnabled) {
-    xdmp.trace(graphTraceEvent, `Creating plan for graph nodes and edges for '${documentUri}' ${predicateIRI ? `with predicate '${predicateIRI}'`: ""}and limit of ${limit}`);
+    xdmp.trace(graphTraceEvent, `Creating plan for graph nodes and edges for concept '${conceptIRI}' with limit of ${limit}`);
   }
-  const results = sem.sparql(`
-      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-      PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-      SELECT ?subjectIRI ?docURI ?firstDocURI ?predicateIRI (MIN(?anyPredicateLabel) AS ?predicateLabel) ?firstObjectIRI WHERE {
-        ?subjectIRI rdfs:isDefinedBy ?docURI.
-        {
-            ?subjectIRI ?predicateIRI ?firstObjectIRI.
-        } UNION {
-            ?firstObjectIRI ?predicateIRI ?subjectIRI.
-        }
-        OPTIONAL {
-            ?firstObjectIRI rdfs:isDefinedBy ?firstDocURI.
-        }
-        OPTIONAL {
-            ?predicateIRI @labelIRI ?anyPredicateLabel.
-        }
-        FILTER (isLiteral(?firstDocURI) && ?firstDocURI = $parentDocURI && isIRI(?predicateIRI) && ?predicateIRI = $matchPredicate)
-        ${lastObjectIRI ? "FILTER ?subjectIRI > $lastObjectIRI" : ""}
-      }
-      GROUP BY ?subjectIRI ?docURI ?predicateIRI ?firstObjectIRI
-      ORDER BY ?subjectIRI
-      LIMIT $limit
-`, {parentDocURI: documentUri, lastObjectIRI, matchPredicate: predicateIRI, labelIRI: getOrderedLabelPredicates(), limit}, [], cts.collectionQuery(getAllEntityIds()));
-  if (graphTraceEnabled) {
-    xdmp.trace(graphTraceEvent, `Retrieved ${fn.count(results)} rows for document '${documentUri}' ${predicateIRI ? `with predicate '${predicateIRI}'`: ""}and limit of ${limit}`);
-  }
-  if (graphDebugTraceEnabled) {
-    xdmp.trace(graphTraceEvent, `Results for node expand '${xdmp.describe(results, Sequence.from([]), Sequence.from([]))}'`);
-  }
-  return results.toArray();
-
-}
-
-function getEntityNodesExpandingConcept(objectConceptIRI, limit) {
-  if (graphTraceEnabled) {
-    xdmp.trace(graphTraceEvent, `Creating plan for graph nodes and edges for concept '${objectConceptIRI}' with limit of ${limit}`);
-  }
-  const store = sem.store(null, cts.andNotQuery(cts.orQuery([cts.tripleRangeQuery(objectConceptIRI, null, null), cts.tripleRangeQuery(null, null, objectConceptIRI)]), cts.collectionQuery(getArchivedCollections())));
+  const store = sem.store(null, cts.andNotQuery(cts.orQuery([cts.tripleRangeQuery(conceptIRI, null, null), cts.tripleRangeQuery(null, null, conceptIRI)]), cts.collectionQuery(getArchivedCollections())));
   const results =  sem.sparql(`PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
                  PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-                 SELECT ?subjectIRI ?predicateIRI ?firstObjectIRI ?docURI ?firstDocURI  WHERE {
+                 SELECT ?subjectIRI ?docURI ?predicateIRI (?firstObjectIRI AS ?objectIRI) (?firstDocURI AS ?objectDocURI)  WHERE {
                     {
                         ?firstObjectIRI ?predicateIRI ?subjectIRI.
                     } UNION {
@@ -204,9 +167,9 @@ function getEntityNodesExpandingConcept(objectConceptIRI, limit) {
                     }
                  }
                  LIMIT $limit
-    `, {objectConceptIRI, limit}, [], store);
+    `, {objectConceptIRI: conceptIRI, limit}, [], store);
   if (graphTraceEnabled) {
-    xdmp.trace(graphTraceEvent, `Retrieved ${fn.count(results)} rows for concept '${objectConceptIRI}' with limit of ${limit}`);
+    xdmp.trace(graphTraceEvent, `Retrieved ${fn.count(results)} rows for concept '${conceptIRI}' with limit of ${limit}`);
   }
   if (graphDebugTraceEnabled) {
     xdmp.trace(graphTraceEvent, `Results for node expand '${xdmp.describe(results, Sequence.from([]), Sequence.from([]))}'`);
@@ -214,8 +177,6 @@ function getEntityNodesExpandingConcept(objectConceptIRI, limit) {
   return results.toArray();
 
 }
-
-
 
 function getEntityNodesByDocument(docURI, limit) {
   if (graphTraceEnabled) {
@@ -229,7 +190,7 @@ function getEntityNodesByDocument(docURI, limit) {
       PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
       SELECT * WHERE {
         {
-          SELECT ?subjectIRI ?docURI ?predicateIRI (MIN(?anyPredicateLabel) AS ?predicateLabel) (MIN(?objectIRI) AS ?firstObjectIRI) (COUNT(DISTINCT(?objectIdentifier)) AS ?nodeCount) WHERE {
+          SELECT ?subjectIRI ?docURI ?predicateIRI (MIN(?anyPredicateLabel) AS ?predicateLabel) (MIN(?objectIRI) AS ?objectIRI) WHERE {
               ?subjectIRI rdfs:isDefinedBy ?docURI.
               {
                   ?subjectIRI ?predicateIRI ?objectIRI
@@ -245,7 +206,7 @@ function getEntityNodesByDocument(docURI, limit) {
               }
               FILTER (isLiteral(?docURI) && ?docURI = $parentDocURI && ?predicateIRI = $allPredicates)
           }
-          GROUP BY ?subjectIRI ?predicateIRI
+          GROUP BY ?subjectIRI ?predicateIRI ?objectIdentifier
         }
         OPTIONAL {
             ?firstObjectIRI rdfs:isDefinedBy ?firstDocURI.
@@ -258,7 +219,7 @@ function getEntityNodesByDocument(docURI, limit) {
       }
   `, bindings, [], collectionQuery).toArray();
   if (graphDebugTraceEnabled) {
-    xdmp.trace(graphTraceEvent, `Subject (${docURI}) results for  node expand '${xdmp.describe(subjectResults, Sequence.from([]), Sequence.from([]))}'`);
+    xdmp.trace(graphTraceEvent, `Subject (${docURI}) results for node expand '${xdmp.describe(subjectResults, Sequence.from([]), Sequence.from([]))}'`);
   }
   if (subjectResults.length === 0) {
     return subjectResults;
@@ -820,9 +781,8 @@ export default {
   getAllEntityIds,
   getAllPredicates,
   getEntityNodesWithRelated,
-  getEntityNodes,
   getEntityNodesByDocument,
-  getEntityNodesExpandingConcept,
+  getEntityNodesByConcept,
   getEntityTypeIRIsCounting,
   getRelatedEntitiesCounting,
   getConceptCounting,
