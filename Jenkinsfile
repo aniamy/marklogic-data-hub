@@ -7,7 +7,7 @@ commitMessage="";
 def prResponse="";
 def prNumber;
 def props;
-githubAPIUrl="https://api.github.com/repos/marklogic/marklogic-data-hub"
+githubAPIUrl="https://api.github.com/repos/marklogic/datahub-central"
 mlFFHost=""
 cypressFFBaseUrl=""
 fFsetupcomplete=false
