@@ -1,3 +1,5 @@
+import globalSettingsUtils from "../../../../impl/global-settings-utils.mjs";
+
 /**
  * Main function in this library for validating an entity. If any validation errors are found and the "validateEntity"
  * is set to "accept", then errors will be added to the options object under the "headers.datahub.validationErrors" key.
@@ -22,10 +24,22 @@ function validateEntity(newInstance, options = {}, entityInfo) {
 
 function shouldValidateEntity(options = {}) {
   let value = options.validateEntity;
-  if (value != null && value != undefined && value != "doNotValidate") {
-    value = fn.string(value).toLowerCase();
-    return value == "accept" || value == "reject";
+  if ("doNotValidate" === fn.string(value).toLowerCase()) {
+    return false;
   }
+  if (value != null && value != undefined) {
+    value = fn.string(value).toLowerCase();
+    return value === "accept" || value === "reject";
+  }
+
+  const globalValue =  fn.string(globalSettingsUtils.getGlobalSetting("entityValidation")).toLowerCase();
+  if ("doNotValidate" === globalValue) {
+    return false;
+  }
+  if (globalValue !== undefined) {
+    return globalValue === "accept" || globalValue === "reject";
+  }
+
   return false;
 }
 
